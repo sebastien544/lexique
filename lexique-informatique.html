@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lexique — Informatique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2026;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --muted: #7a7d85;
+    --hint: #454850;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.12);
+    --accent-text: #1a2200;
+    --cat-concept: #a78bfa;
+    --cat-http: #60a5fa;
+    --cat-auth: #f87171;
+    --cat-format: #34d399;
+    --cat-archi: #fbbf24;
+    --cat-erreur: #fb923c;
+    --cat-perf: #22d3ee;
+    --cat-reseau: #818cf8;
+    --cat-systeme: #4ade80;
+    --cat-securite: #f87171;
+    --cat-dev: #c084fc;
+    --cat-materiel: #fb923c;
+    --cat-donnees: #2dd4bf;
+    --cat-ia: #f472b6;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 4rem 2rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp .5s .1s ease forwards;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeUp .6s .2s ease forwards;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .header-sub {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    max-width: 480px;
+    opacity: 0;
+    animation: fadeUp .6s .3s ease forwards;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .6s .4s ease forwards;
+  }
+
+  .stat { text-align: left; }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+    opacity: 0;
+    animation: fadeUp .5s .5s ease forwards;
+  }
+
+  .search-wrap { position: relative; margin-bottom: 1.25rem; }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--hint);
+    pointer-events: none;
+    font-size: 16px;
+  }
+
+  #search {
+    width: 100%;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px 12px 42px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  #search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200,240,96,.1);
+  }
+
+  #search::placeholder { color: var(--hint); }
+
+  .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 0.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .18s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tab:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .tab.on {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .tab-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--hint);
+    margin-bottom: 6px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .count-badge { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  .sort-btn {
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color .15s;
+  }
+  .sort-btn:hover { color: var(--text); }
+
+  /* ── GRID ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.2rem;
+    cursor: default;
+    transition: border-color .2s, background .2s, transform .15s;
+    animation: cardIn .35s ease both;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+    background: var(--surface2);
+    transform: translateY(-1px);
+  }
+
+  /* Cartes avec sous-lexique : style distinct */
+  a.card {
+    cursor: pointer;
+    border-color: rgba(200,240,96,0.2);
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .term-name {
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    border: 0.5px solid;
+    margin-top: 2px;
+  }
+
+  .term-def { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  .term-ex {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(200,240,96,0.06);
+    border: 0.5px solid rgba(200,240,96,0.15);
+    border-radius: 6px;
+    padding: 5px 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .term-en { margin-top: 8px; font-size: 11px; color: var(--hint); font-style: italic; }
+
+  /* Indicateur sous-lexique */
+  .sub-lexique-hint {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    opacity: .7;
+    transition: opacity .15s;
+  }
+
+  a.card:hover .sub-lexique-hint { opacity: 1; }
+
+  /* ── EMPTY ── */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--hint);
+    font-size: 14px;
+  }
+
+  .empty-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--surface2);
+    margin-bottom: .5rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 0.5px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  footer span { font-size: 12px; color: var(--hint); font-family: 'DM Mono', monospace; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--hint); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header, .controls, .main { padding-left: 1rem; padding-right: 1rem; }
+    .stats-row { gap: 1.2rem; }
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── LIGHT THEME ── */
+  :root.light {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --surface2: #ede9e3;
+    --border: rgba(0,0,0,0.08);
+    --border-hover: rgba(0,0,0,0.18);
+    --text: #1a1b1e;
+    --muted: #6c7080;
+    --hint: #b4b6be;
+    --accent: #3a6800;
+    --accent-dim: rgba(58,104,0,0.09);
+    --accent-text: #f0ede8;
+  }
+
+  :root.light #search:focus {
+    box-shadow: 0 0 0 3px rgba(58,104,0,0.12);
+  }
+
+  :root.light .term-ex {
+    background: rgba(58,104,0,0.06);
+    border-color: rgba(58,104,0,0.18);
+  }
+
+  :root.light a.card { border-color: rgba(58,104,0,0.2); }
+  :root.light a.card:hover { border-color: var(--accent); }
+
+  :root.light .sub-lexique-hint { color: var(--accent); }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    z-index: 100;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: all .2s;
+    letter-spacing: .05em;
+  }
+
+  .theme-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀</button>
+
+<header>
+  <div class="header-eyebrow">Référence · 2026</div>
+  <h1>Lexique <em>Informatique</em></h1>
+  <p class="header-sub">Les termes essentiels du développement, des réseaux, de la sécurité et des systèmes.</p>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num" id="total-count">—</div><div class="stat-label">termes</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">catégories</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">sous-lexiques</div></div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search" placeholder="Rechercher un terme, une définition…" oninput="render()" autocomplete="off" spellcheck="false">
+  </div>
+
+  <div class="section-label" style="margin-bottom:8px">Catégorie</div>
+  <div class="filter-tabs" id="cat-tabs"></div>
+
+  <div class="meta-row">
+    <span class="count-badge" id="count-label"></span>
+    <button class="sort-btn" onclick="toggleSort()"><span id="sort-icon">↓</span> <span id="sort-label">A → Z</span></button>
+  </div>
+</div>
+
+<main class="main">
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <span>Lexique Informatique</span>
+  <span id="footer-count"></span>
+</footer>
+
+<script src="lexique-data.js"></script>
+<script>
+let activeCat = "all";
+let sortAZ = true;
+
+function buildCatTabs() {
+  const allBtn = `<button class="tab ${activeCat==='all'?'on':''}" onclick="setCat('all')">Toutes</button>`;
+  const catBtns = CATS_INFO.map(c => {
+    const col = CAT_COLORS[c] || "#888";
+    return `<button class="tab ${c===activeCat?'on':''}" onclick="setCat('${c}')">
+      <span class="tab-dot" style="background:${col}"></span>${CAT_LABELS[c]}
+    </button>`;
+  }).join("");
+  document.getElementById("cat-tabs").innerHTML = allBtn + catBtns;
+}
+
+function setCat(id) {
+  activeCat = id;
+  buildCatTabs();
+  render();
+}
+
+function toggleSort() {
+  sortAZ = !sortAZ;
+  document.getElementById("sort-icon").textContent = sortAZ ? "↓" : "↑";
+  document.getElementById("sort-label").textContent = sortAZ ? "A → Z" : "Z → A";
+  render();
+}
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase().trim();
+
+  let filtered = terms_info.filter(t => {
+    const mc = activeCat === "all" || t.cat === activeCat;
+    const mq = !q || t.name.toLowerCase().includes(q) || t.def.toLowerCase().includes(q) || (t.en||"").toLowerCase().includes(q);
+    return mc && mq;
+  });
+
+  filtered.sort((a, b) => sortAZ
+    ? a.name.localeCompare(b.name, "fr")
+    : b.name.localeCompare(a.name, "fr")
+  );
+
+  document.getElementById("count-label").textContent = `${filtered.length} terme${filtered.length !== 1 ? "s" : ""}`;
+
+  const grid = document.getElementById("grid");
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-big">∅</div>Aucun terme ne correspond à cette recherche.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((t, i) => {
+    const col = CAT_COLORS[t.cat] || "#888";
+    const bg  = col + "18";
+    const delay = Math.min(i * 18, 300);
+    const tag = t.subLexique ? "a" : "div";
+    const href = t.subLexique ? ` href="${t.subLexique}"` : "";
+
+    return `<${tag} class="card"${href} style="animation-delay:${delay}ms">
+      <div class="card-top">
+        <span class="term-name">${t.name}</span>
+        <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${CAT_LABELS[t.cat]}</span>
+      </div>
+      <div class="term-def">${t.def}</div>
+      ${t.ex ? `<div class="term-ex">${t.ex}</div>` : ""}
+      ${t.en && t.en !== t.name ? `<div class="term-en">${t.en}</div>` : ""}
+      ${t.subLexique ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${t.name}</div>` : ""}
+    </${tag}>`;
+  }).join("");
+}
+
+document.getElementById("total-count").textContent = terms_info.length;
+document.getElementById("footer-count").textContent = terms_info.length + " termes · Informatique";
+buildCatTabs();
+render();
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '☽' : '☀';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+(function() {
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('theme-btn').textContent = '☽';
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lexique — Informatique & API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2026;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --muted: #7a7d85;
+    --hint: #454850;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.12);
+    --accent-text: #1a2200;
+    --cat-concept: #a78bfa;
+    --cat-http: #60a5fa;
+    --cat-auth: #f87171;
+    --cat-format: #34d399;
+    --cat-archi: #fbbf24;
+    --cat-erreur: #fb923c;
+    --cat-perf: #22d3ee;
+    --cat-reseau: #818cf8;
+    --cat-systeme: #4ade80;
+    --cat-securite: #f87171;
+    --cat-dev: #c084fc;
+    --cat-materiel: #fb923c;
+    --cat-donnees: #2dd4bf;
+    --cat-ia: #f472b6;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 4rem 2rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp .5s .1s ease forwards;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeUp .6s .2s ease forwards;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    max-width: 480px;
+    opacity: 0;
+    animation: fadeUp .6s .3s ease forwards;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .6s .4s ease forwards;
+  }
+
+  .stat { text-align: left; }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+    opacity: 0;
+    animation: fadeUp .5s .5s ease forwards;
+  }
+
+  .search-wrap {
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--hint);
+    pointer-events: none;
+    font-size: 16px;
+  }
+
+  #search {
+    width: 100%;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px 12px 42px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  #search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200,240,96,.1);
+  }
+
+  #search::placeholder { color: var(--hint); }
+
+  .filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 0.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .18s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tab:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .tab.on {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .tab-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--hint);
+    margin-bottom: 6px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .count-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .sort-btn {
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color .15s;
+  }
+  .sort-btn:hover { color: var(--text); }
+
+  /* ── GRID ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.2rem;
+    cursor: default;
+    transition: border-color .2s, background .2s, transform .15s;
+    animation: cardIn .35s ease both;
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+    background: var(--surface2);
+    transform: translateY(-1px);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .term-name {
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    border: 0.5px solid;
+    margin-top: 2px;
+  }
+
+  .term-def {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .term-ex {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(200,240,96,0.06);
+    border: 0.5px solid rgba(200,240,96,0.15);
+    border-radius: 6px;
+    padding: 5px 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .term-en {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--hint);
+    font-style: italic;
+  }
+
+  /* ── EMPTY ── */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--hint);
+    font-size: 14px;
+  }
+
+  .empty-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--surface2);
+    margin-bottom: .5rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 0.5px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  footer span {
+    font-size: 12px;
+    color: var(--hint);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--hint); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header, .controls, .main { padding-left: 1rem; padding-right: 1rem; }
+    .stats-row { gap: 1.2rem; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Référence · 2026</div>
+  <h1>Lexique <em>Informatique</em><br>& <em>API</em></h1>
+  <p class="header-sub">Tous les termes essentiels du développement, des réseaux, de la sécurité et des API — en un seul endroit.</p>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num" id="total-count">89</div><div class="stat-label">termes</div></div>
+    <div class="stat"><div class="stat-num">14</div><div class="stat-label">catégories</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">domaines</div></div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search" placeholder="Rechercher un terme, une définition…" oninput="render()" autocomplete="off" spellcheck="false">
+  </div>
+
+  <div class="section-label" style="margin-bottom:8px">Domaine</div>
+  <div class="filter-tabs" id="domain-tabs"></div>
+
+  <div class="section-label" style="margin-bottom:8px;margin-top:14px">Catégorie</div>
+  <div class="filter-tabs" id="cat-tabs"></div>
+
+  <div class="meta-row" style="margin-top:1.25rem">
+    <span class="count-badge" id="count-label"></span>
+    <button class="sort-btn" onclick="toggleSort()"><span id="sort-icon">↓</span> <span id="sort-label">A → Z</span></button>
+  </div>
+</div>
+
+<main class="main">
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <span>Lexique Informatique & API</span>
+  <span id="footer-count"></span>
+</footer>
+
+<script>
+const CAT_COLORS = {
+  concept:"#a78bfa", http:"#60a5fa", auth:"#f87171", format:"#34d399",
+  archi:"#fbbf24", erreur:"#fb923c", perf:"#22d3ee",
+  reseau:"#818cf8", systeme:"#4ade80", securite:"#f87171",
+  dev:"#c084fc", materiel:"#fb923c", donnees:"#2dd4bf", ia:"#f472b6"
+};
+
+const CAT_LABELS = {
+  concept:"Concept", http:"HTTP", auth:"Auth", format:"Format",
+  archi:"Architecture", erreur:"Erreur HTTP", perf:"Performance",
+  reseau:"Réseau", systeme:"Système", securite:"Sécurité",
+  dev:"Développement", materiel:"Matériel", donnees:"Données", ia:"IA"
+};
+
+const DOMAINS = {
+  all: "Tous",
+  info: "Informatique",
+  api: "API"
+};
+
+const DOMAIN_CATS = {
+  info: ["reseau","systeme","securite","dev","materiel","donnees","ia"],
+  api:  ["concept","http","auth","format","archi","erreur","perf"]
+};
+
+const terms = [
+  // ── INFORMATIQUE ──
+  {name:"Algorithme",en:"Algorithm",cat:"dev",domain:"info",def:"Suite d'instructions ordonnées permettant de résoudre un problème ou d'accomplir une tâche."},
+  {name:"API",en:"Application Programming Interface",cat:"dev",domain:"info",def:"Interface permettant à des logiciels de communiquer entre eux en exposant des fonctions ou données."},
+  {name:"Bit",en:"Bit",cat:"systeme",domain:"info",def:"Plus petite unité d'information en informatique, valant 0 ou 1."},
+  {name:"Bande passante",en:"Bandwidth",cat:"reseau",domain:"info",def:"Capacité maximale de transmission de données sur un réseau, exprimée en bits par seconde."},
+  {name:"Big Data",en:"Big Data",cat:"donnees",domain:"info",def:"Ensemble de données volumineuses, variées et à traitement rapide, nécessitant des outils spécifiques."},
+  {name:"Bug",en:"Bug",cat:"dev",domain:"info",def:"Erreur ou défaut dans un programme causant un comportement inattendu ou incorrect."},
+  {name:"Cache",en:"Cache",cat:"systeme",domain:"info",def:"Mémoire rapide stockant des données fréquemment utilisées pour accélérer leur accès ultérieur."},
+  {name:"Chiffrement",en:"Encryption",cat:"securite",domain:"info",def:"Transformation des données en un format illisible sans clé de déchiffrement appropriée."},
+  {name:"Cloud",en:"Cloud Computing",cat:"reseau",domain:"info",def:"Modèle permettant d'accéder à des ressources informatiques via internet."},
+  {name:"Compilateur",en:"Compiler",cat:"dev",domain:"info",def:"Programme qui traduit un code source en code machine exécutable."},
+  {name:"CPU",en:"Central Processing Unit",cat:"materiel",domain:"info",def:"Processeur central d'un ordinateur, responsable de l'exécution des instructions des programmes."},
+  {name:"Débogage",en:"Debugging",cat:"dev",domain:"info",def:"Processus d'identification et de correction des erreurs dans un programme informatique."},
+  {name:"DNS",en:"Domain Name System",cat:"reseau",domain:"info",def:"Système qui traduit les noms de domaine lisibles (ex: google.com) en adresses IP numériques."},
+  {name:"Docker",en:"Docker",cat:"systeme",domain:"info",def:"Plateforme de conteneurisation permettant d'empaqueter des applications avec leurs dépendances."},
+  {name:"Firewall",en:"Firewall",cat:"securite",domain:"info",def:"Système de sécurité filtrant le trafic réseau selon des règles définies pour protéger un réseau."},
+  {name:"Framework",en:"Framework",cat:"dev",domain:"info",def:"Ensemble d'outils et de bibliothèques fournissant une structure pour développer des applications."},
+  {name:"GPU",en:"Graphics Processing Unit",cat:"materiel",domain:"info",def:"Processeur spécialisé dans le calcul graphique, utilisé aussi pour l'IA et les calculs parallèles."},
+  {name:"HTTP/HTTPS",en:"HyperText Transfer Protocol (Secure)",cat:"reseau",domain:"info",def:"Protocole de communication pour le transfert de données sur le web. HTTPS ajoute le chiffrement."},
+  {name:"Hachage",en:"Hashing",cat:"securite",domain:"info",def:"Fonction transformant des données en une empreinte de taille fixe, non réversible."},
+  {name:"IDE",en:"Integrated Development Environment",cat:"dev",domain:"info",def:"Environnement de développement regroupant éditeur, débogueur et outils de compilation."},
+  {name:"Intelligence artificielle",en:"Artificial Intelligence",cat:"ia",domain:"info",def:"Simulation de capacités cognitives humaines par des machines, incluant apprentissage et raisonnement."},
+  {name:"IP (adresse)",en:"IP Address",cat:"reseau",domain:"info",def:"Identifiant numérique unique attribué à chaque appareil sur un réseau informatique."},
+  {name:"JSON",en:"JavaScript Object Notation",cat:"donnees",domain:"info",def:"Format léger d'échange de données structurées, lisible par les humains et les machines.",ex:'{"id":1,"name":"Alice"}'},
+  {name:"Kernel",en:"Kernel",cat:"systeme",domain:"info",def:"Noyau du système d'exploitation, gérant les ressources matérielles et les processus logiciels."},
+  {name:"Langage de programmation",en:"Programming Language",cat:"dev",domain:"info",def:"Langage formel permettant d'écrire des instructions exécutables par un ordinateur."},
+  {name:"Latence",en:"Latency",cat:"reseau",domain:"info",def:"Délai de transmission d'une donnée d'un point à un autre sur un réseau, exprimé en millisecondes."},
+  {name:"Machine learning",en:"Machine Learning",cat:"ia",domain:"info",def:"Sous-domaine de l'IA où les modèles apprennent automatiquement à partir de données."},
+  {name:"Malware",en:"Malware",cat:"securite",domain:"info",def:"Logiciel malveillant conçu pour endommager, espionner ou prendre le contrôle d'un système."},
+  {name:"Mémoire RAM",en:"Random Access Memory",cat:"materiel",domain:"info",def:"Mémoire vive temporaire de l'ordinateur, stockant les données en cours d'utilisation."},
+  {name:"Métadonnées",en:"Metadata",cat:"donnees",domain:"info",def:"Données décrivant d'autres données, fournissant des informations sur leur contexte ou structure."},
+  {name:"Navigateur",en:"Browser",cat:"reseau",domain:"info",def:"Logiciel permettant de consulter des pages web en interprétant le code HTML, CSS et JavaScript."},
+  {name:"Open source",en:"Open Source",cat:"dev",domain:"info",def:"Logiciel dont le code source est librement accessible, modifiable et redistribuable par tous."},
+  {name:"Phishing",en:"Phishing",cat:"securite",domain:"info",def:"Technique frauduleuse visant à tromper un utilisateur pour voler ses informations sensibles."},
+  {name:"Protocole",en:"Protocol",cat:"reseau",domain:"info",def:"Ensemble de règles standardisées régissant la communication entre équipements informatiques."},
+  {name:"Réseau neuronal",en:"Neural Network",cat:"ia",domain:"info",def:"Modèle informatique inspiré du cerveau humain, composé de couches de nœuds interconnectés."},
+  {name:"Serveur",en:"Server",cat:"systeme",domain:"info",def:"Ordinateur ou programme fournissant des services, des ressources ou des données à d'autres machines."},
+  {name:"SSD",en:"Solid State Drive",cat:"materiel",domain:"info",def:"Dispositif de stockage rapide sans pièces mobiles, utilisant de la mémoire flash."},
+  {name:"SQL",en:"Structured Query Language",cat:"donnees",domain:"info",def:"Langage standardisé pour créer, interroger et manipuler des bases de données relationnelles."},
+  {name:"TCP/IP",en:"Transmission Control Protocol / Internet Protocol",cat:"reseau",domain:"info",def:"Suite de protocoles fondamentaux régissant la transmission de données sur internet."},
+  {name:"Token",en:"Token",cat:"ia",domain:"info",def:"Unité de texte (mot ou sous-mot) utilisée par les modèles de langage pour traiter le texte."},
+  {name:"URL",en:"Uniform Resource Locator",cat:"reseau",domain:"info",def:"Adresse unique identifiant une ressource sur internet, comme une page web ou un fichier."},
+  {name:"Variable",en:"Variable",cat:"dev",domain:"info",def:"Espace mémoire nommé servant à stocker une valeur pouvant changer durant l'exécution d'un programme."},
+  {name:"VPN",en:"Virtual Private Network",cat:"securite",domain:"info",def:"Réseau privé virtuel chiffrant la connexion internet pour protéger la confidentialité des données."},
+  {name:"XML",en:"eXtensible Markup Language",cat:"donnees",domain:"info",def:"Langage de balisage extensible utilisé pour structurer et transporter des données.",ex:"<user><id>1</id></user>"},
+  // ── API ──
+  {name:"API Key",en:"API Key",cat:"auth",domain:"api",def:"Clé secrète transmise dans les en-têtes ou paramètres pour identifier et authentifier un client auprès de l'API.",ex:"Authorization: Bearer sk-xxx"},
+  {name:"Authentification",en:"Authentication",cat:"auth",domain:"api",def:"Processus de vérification de l'identité d'un client (utilisateur ou application) avant d'accéder à l'API.",ex:"Authorization: Basic dXNlcjpwYXNz"},
+  {name:"Cache (API)",en:"Cache",cat:"perf",domain:"api",def:"Stockage temporaire des réponses API pour éviter des appels répétés au serveur et réduire la latence.",ex:"Cache-Control: max-age=3600"},
+  {name:"CORS",en:"Cross-Origin Resource Sharing",cat:"auth",domain:"api",def:"Mécanisme de sécurité des navigateurs contrôlant quelles origines peuvent faire des requêtes vers une API.",ex:"Access-Control-Allow-Origin: *"},
+  {name:"DELETE",en:"DELETE",cat:"http",domain:"api",def:"Méthode HTTP pour supprimer une ressource identifiée. Idempotente : supprimer deux fois donne le même résultat.",ex:"DELETE /sessions/abc123"},
+  {name:"Endpoint",en:"Endpoint",cat:"concept",domain:"api",def:"URL spécifique d'une API à laquelle on peut envoyer des requêtes pour accéder à une ressource ou déclencher une action.",ex:"GET /api/v1/users/42"},
+  {name:"En-tête Accept",en:"Accept Header",cat:"http",domain:"api",def:"En-tête HTTP indiquant au serveur le format de réponse souhaité par le client.",ex:"Accept: application/json"},
+  {name:"En-tête HTTP",en:"HTTP Header",cat:"http",domain:"api",def:"Métadonnée envoyée avec une requête ou réponse HTTP, fournissant des informations sur le contenu, l'auth, le cache, etc.",ex:"Content-Type: application/json"},
+  {name:"GET",en:"GET",cat:"http",domain:"api",def:"Méthode HTTP pour récupérer une ressource. Idempotente et sans effet de bord — ne modifie pas les données.",ex:"GET /products?page=2"},
+  {name:"GraphQL",en:"GraphQL",cat:"archi",domain:"api",def:"Langage de requête pour API permettant au client de demander exactement les données dont il a besoin, ni plus ni moins.",ex:"query { user(id:1) { name email } }"},
+  {name:"gRPC",en:"gRPC",cat:"archi",domain:"api",def:"Framework d'appel de procédure distante de Google utilisant Protocol Buffers pour des communications rapides et typées.",ex:"service UserService { rpc GetUser... }"},
+  {name:"HTTPS / TLS",en:"HTTPS / TLS",cat:"auth",domain:"api",def:"Chiffrement de la communication entre client et serveur, garantissant confidentialité et intégrité des données échangées.",ex:"https://api.exemple.com"},
+  {name:"Idempotence",en:"Idempotency",cat:"concept",domain:"api",def:"Propriété d'une opération dont le résultat est identique qu'elle soit exécutée une ou plusieurs fois.",ex:"DELETE /items/5 (×N = même effet)"},
+  {name:"JWT",en:"JSON Web Token",cat:"auth",domain:"api",def:"Jeton signé encodant des informations d'identité et de droits, transmis entre client et serveur.",ex:"eyJhbGciOiJIUzI1NiJ9..."},
+  {name:"Latence (API)",en:"Latency",cat:"perf",domain:"api",def:"Temps de réponse d'une API entre l'envoi de la requête et la réception de la réponse, exprimé en millisecondes.",ex:"Response time: 120ms"},
+  {name:"Middleware",en:"Middleware",cat:"archi",domain:"api",def:"Couche logicielle intercalée dans le traitement des requêtes API (authentification, logging, validation, compression…).",ex:"app.use(authMiddleware)"},
+  {name:"Mock API",en:"Mock API",cat:"concept",domain:"api",def:"Fausse API simulant les réponses d'un service réel, utile pour le développement et les tests sans dépendance externe.",ex:"msw, json-server, Postman mock"},
+  {name:"OAuth 2.0",en:"OAuth 2.0",cat:"auth",domain:"api",def:"Protocole d'autorisation standard permettant à une application d'accéder aux ressources d'un utilisateur sans connaître son mot de passe.",ex:"Authorization: Bearer <access_token>"},
+  {name:"OpenAPI / Swagger",en:"OpenAPI / Swagger",cat:"archi",domain:"api",def:"Spécification standard pour documenter les API REST de manière lisible par les humains et les machines.",ex:"openapi: 3.0.0 paths: /users..."},
+  {name:"Pagination",en:"Pagination",cat:"concept",domain:"api",def:"Technique divisant une grande liste de résultats en pages pour éviter de retourner des milliers d'éléments d'un coup.",ex:"?page=2&limit=20"},
+  {name:"Paramètre de requête",en:"Query Parameter",cat:"http",domain:"api",def:"Données passées dans l'URL après le `?` pour filtrer, trier ou paginer les résultats d'un endpoint.",ex:"GET /search?q=chat&lang=fr"},
+  {name:"PATCH",en:"PATCH",cat:"http",domain:"api",def:"Méthode HTTP pour modifier partiellement une ressource — seuls les champs envoyés sont mis à jour.",ex:"PATCH /users/5  body: {email:...}"},
+  {name:"Payload",en:"Payload",cat:"format",domain:"api",def:"Corps d'une requête ou réponse HTTP contenant les données principales échangées, généralement en JSON.",ex:'body: { "title": "Post 1" }'},
+  {name:"POST",en:"POST",cat:"http",domain:"api",def:"Méthode HTTP pour créer une nouvelle ressource ou envoyer des données à traiter par le serveur.",ex:"POST /orders  body: {...}"},
+  {name:"Protocol Buffers",en:"Protocol Buffers",cat:"format",domain:"api",def:"Format binaire compact de Google utilisé par gRPC, plus rapide et léger que JSON mais non lisible par l'humain.",ex:"message User { int32 id = 1; }"},
+  {name:"PUT",en:"PUT",cat:"http",domain:"api",def:"Méthode HTTP pour remplacer entièrement une ressource existante par les données envoyées.",ex:"PUT /users/5  body: {...}"},
+  {name:"Rate limiting",en:"Rate Limiting",cat:"perf",domain:"api",def:"Mécanisme limitant le nombre de requêtes qu'un client peut effectuer sur une période donnée, protégeant le serveur de la surcharge.",ex:"X-RateLimit-Remaining: 45"},
+  {name:"REST",en:"REST",cat:"archi",domain:"api",def:"Style d'architecture d'API utilisant les méthodes HTTP standard, sans état, avec des ressources identifiées par des URLs.",ex:"GET /articles, POST /articles"},
+  {name:"Scope",en:"Scope",cat:"auth",domain:"api",def:"Ensemble de permissions accordées à un token OAuth définissant à quelles ressources ou actions il donne accès.",ex:"scope: read:users write:posts"},
+  {name:"SDK",en:"Software Development Kit",cat:"concept",domain:"api",def:"Kit de développement logiciel fournissant des bibliothèques prêtes à l'emploi pour consommer une API dans un langage donné.",ex:"import anthropic from 'anthropic'"},
+  {name:"Timeout",en:"Timeout",cat:"perf",domain:"api",def:"Délai maximal accordé à une requête API avant qu'elle soit annulée pour éviter d'attendre indéfiniment.",ex:"AbortSignal.timeout(5000)"},
+  {name:"Versioning",en:"Versioning",cat:"archi",domain:"api",def:"Pratique consistant à versionner l'API (v1, v2…) pour permettre des évolutions sans casser les clients existants.",ex:"/api/v2/users"},
+  {name:"Webhook",en:"Webhook",cat:"concept",domain:"api",def:"Mécanisme inverse d'une API : le serveur notifie proactivement le client en envoyant une requête HTTP lors d'un événement.",ex:"POST https://ton-app.com/hook"},
+  {name:"WebSocket",en:"WebSocket",cat:"archi",domain:"api",def:"Protocole de communication bidirectionnelle et persistante entre client et serveur, utile pour les données en temps réel.",ex:"ws://api.exemple.com/live"},
+  {name:"XML (API)",en:"XML",cat:"format",domain:"api",def:"Langage de balisage extensible utilisé dans les API SOAP et les anciens systèmes pour structurer les données échangées.",ex:"<user><id>1</id></user>"},
+  {name:"200 OK",en:"200 OK",cat:"erreur",domain:"api",def:"Code de statut HTTP indiquant que la requête a réussi et que la réponse contient le résultat attendu.",ex:"HTTP/1.1 200 OK"},
+  {name:"201 Created",en:"201 Created",cat:"erreur",domain:"api",def:"Code indiquant qu'une ressource a été créée avec succès suite à une requête POST ou PUT.",ex:"HTTP/1.1 201 Created"},
+  {name:"400 Bad Request",en:"400 Bad Request",cat:"erreur",domain:"api",def:"Le serveur ne peut pas traiter la requête en raison d'une erreur côté client (paramètre manquant, format invalide…).",ex:"HTTP/1.1 400 Bad Request"},
+  {name:"401 Unauthorized",en:"401 Unauthorized",cat:"erreur",domain:"api",def:"Authentification requise ou invalide. Le client doit s'identifier pour accéder à la ressource.",ex:"HTTP/1.1 401 Unauthorized"},
+  {name:"403 Forbidden",en:"403 Forbidden",cat:"erreur",domain:"api",def:"Le client est authentifié mais ne dispose pas des droits suffisants pour accéder à cette ressource.",ex:"HTTP/1.1 403 Forbidden"},
+  {name:"404 Not Found",en:"404 Not Found",cat:"erreur",domain:"api",def:"La ressource demandée n'existe pas ou n'a pas pu être trouvée sur le serveur.",ex:"HTTP/1.1 404 Not Found"},
+  {name:"429 Too Many Requests",en:"429 Too Many Requests",cat:"erreur",domain:"api",def:"Le client a dépassé la limite de requêtes autorisées (rate limit). Réessayer après un délai.",ex:"Retry-After: 60"},
+  {name:"500 Internal Server Error",en:"500 Internal Server Error",cat:"erreur",domain:"api",def:"Erreur générique côté serveur — une exception non gérée s'est produite lors du traitement de la requête.",ex:"HTTP/1.1 500 Internal Server Error"},
+  {name:"JSON (API)",en:"JSON",cat:"format",domain:"api",def:"Format texte léger pour l'échange de données structurées, basé sur des paires clé-valeur. Format dominant des API REST.",ex:'{"id":1,"name":"Alice"}'},
+];
+
+document.getElementById("total-count").textContent = terms.length;
+document.getElementById("footer-count").textContent = terms.length + " termes · Informatique & API";
+
+let activeDomain = "all";
+let activeCat = "all";
+let sortAZ = true;
+
+function getActiveCats() {
+  if (activeDomain === "all") return Object.keys(CAT_LABELS);
+  return DOMAIN_CATS[activeDomain] || [];
+}
+
+function buildDomainTabs() {
+  document.getElementById("domain-tabs").innerHTML = Object.entries(DOMAINS).map(([id, label]) =>
+    `<button class="tab ${id===activeDomain?'on':''}" onclick="setDomain('${id}')">${label}</button>`
+  ).join("");
+}
+
+function buildCatTabs() {
+  const cats = activeDomain === "all"
+    ? Object.keys(CAT_LABELS)
+    : DOMAIN_CATS[activeDomain];
+
+  const allBtn = `<button class="tab ${activeCat==='all'?'on':''}" onclick="setCat('all')">Toutes</button>`;
+  const catBtns = cats.map(c => {
+    const col = CAT_COLORS[c] || "#888";
+    return `<button class="tab ${c===activeCat?'on':''}" onclick="setCat('${c}')">
+      <span class="tab-dot" style="background:${col}"></span>${CAT_LABELS[c]}
+    </button>`;
+  }).join("");
+
+  document.getElementById("cat-tabs").innerHTML = allBtn + catBtns;
+}
+
+function setDomain(id) {
+  activeDomain = id;
+  activeCat = "all";
+  buildDomainTabs();
+  buildCatTabs();
+  render();
+}
+
+function setCat(id) {
+  activeCat = id;
+  buildCatTabs();
+  render();
+}
+
+function toggleSort() {
+  sortAZ = !sortAZ;
+  document.getElementById("sort-icon").textContent = sortAZ ? "↓" : "↑";
+  document.getElementById("sort-label").textContent = sortAZ ? "A → Z" : "Z → A";
+  render();
+}
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase().trim();
+
+  let filtered = terms.filter(t => {
+    const md = activeDomain === "all" || t.domain === activeDomain;
+    const mc = activeCat === "all" || t.cat === activeCat;
+    const mq = !q || t.name.toLowerCase().includes(q) || t.def.toLowerCase().includes(q) || (t.en||"").toLowerCase().includes(q);
+    return md && mc && mq;
+  });
+
+  filtered.sort((a, b) => sortAZ
+    ? a.name.localeCompare(b.name, "fr")
+    : b.name.localeCompare(a.name, "fr")
+  );
+
+  document.getElementById("count-label").textContent = `${filtered.length} terme${filtered.length !== 1 ? "s" : ""}`;
+
+  const grid = document.getElementById("grid");
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-big">∅</div>Aucun terme ne correspond à cette recherche.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((t, i) => {
+    const col = CAT_COLORS[t.cat] || "#888";
+    const bg  = col + "18";
+    const delay = Math.min(i * 18, 300);
+    return `<div class="card" style="animation-delay:${delay}ms">
+      <div class="card-top">
+        <span class="term-name">${t.name}</span>
+        <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${CAT_LABELS[t.cat]}</span>
+      </div>
+      <div class="term-def">${t.def}</div>
+      ${t.ex ? `<div class="term-ex">${t.ex}</div>` : ""}
+      ${t.en && t.en !== t.name ? `<div class="term-en">${t.en}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+buildDomainTabs();
+buildCatTabs();
+render();
+</script>
+</body>
+</html>
