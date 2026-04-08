@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lexique — Numérique</title>
+<title>Lexique Numérique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -18,7 +18,6 @@
     --hint: #454850;
     --accent: #c8f060;
     --accent-dim: rgba(200,240,96,0.12);
-    --accent-text: #1a2200;
     --radius: 10px;
     --radius-lg: 16px;
   }
@@ -35,12 +34,40 @@
     min-height: 100vh;
   }
 
+  /* ── BREADCRUMB ── */
+  .breadcrumb {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 0;
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    animation: fadeUp .4s ease forwards;
+  }
+
+  .breadcrumb.visible { display: flex; }
+
+  .breadcrumb a {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s;
+  }
+
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb-sep { font-size: 12px; color: var(--hint); margin: 0 6px; font-family: 'DM Mono', monospace; }
+  .breadcrumb-current { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); }
+
   /* ── HEADER ── */
   header {
     padding: 4rem 2rem 3rem;
     max-width: 1100px;
     margin: 0 auto;
   }
+
+  header.sub { padding-top: 2.5rem; }
 
   .header-eyebrow {
     font-family: 'DM Mono', monospace;
@@ -343,7 +370,6 @@
     --hint: #b4b6be;
     --accent: #3a6800;
     --accent-dim: rgba(58,104,0,0.09);
-    --accent-text: #f0ede8;
   }
 
   :root.light #search:focus { box-shadow: 0 0 0 3px rgba(58,104,0,0.12); }
@@ -378,7 +404,9 @@
   }
 
   @media (max-width: 600px) {
+    .breadcrumb { padding: 1rem 1rem 0; }
     header { padding: 2rem 1rem 1.5rem; }
+    header.sub { padding-top: 1.25rem; }
     .controls, .main { padding-left: 1rem; padding-right: 1rem; }
     h1 { font-size: 2rem; }
     .stats-row { gap: 1rem; flex-wrap: wrap; }
@@ -395,26 +423,35 @@
 
 <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀</button>
 
-<header>
-  <div class="header-eyebrow">Référence · 2026</div>
-  <h1>Lexique <em>Numérique</em></h1>
-  <p class="header-sub">Les grands concepts du monde numérique : internet, données, IA, design, droit, télécommunications, économie et société.</p>
+<nav class="breadcrumb" id="breadcrumb"></nav>
+
+<header id="header">
+  <div class="header-eyebrow" id="header-eyebrow"></div>
+  <h1 id="header-title"></h1>
+  <p class="header-sub" id="header-sub"></p>
   <div class="stats-row">
-    <div class="stat"><div class="stat-num" id="total-count">—</div><div class="stat-label">termes</div></div>
-    <div class="stat"><div class="stat-num">9</div><div class="stat-label">catégories</div></div>
-    <div class="stat"><div class="stat-num">2</div><div class="stat-label">sous-lexiques</div></div>
+    <div class="stat">
+      <div class="stat-num" id="stat-terms">—</div>
+      <div class="stat-label">termes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="stat-cats">—</div>
+      <div class="stat-label">catégories</div>
+    </div>
+    <div class="stat" id="stat-sub-wrap" style="display:none">
+      <div class="stat-num" id="stat-subs">—</div>
+      <div class="stat-label" id="stat-subs-label">sous-lexiques</div>
+    </div>
   </div>
 </header>
 
 <div class="controls">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="search" placeholder="Rechercher un terme, une définition…" oninput="render()" autocomplete="off" spellcheck="false">
+    <input type="text" id="search" placeholder="Rechercher un terme, une définition…" oninput="renderGrid()" autocomplete="off" spellcheck="false">
   </div>
-
   <div class="section-label" style="margin-bottom:8px">Catégorie</div>
   <div class="filter-tabs" id="cat-tabs"></div>
-
   <div class="meta-row">
     <span class="count-badge" id="count-label"></span>
     <button class="sort-btn" onclick="toggleSort()"><span id="sort-icon">↓</span> <span id="sort-label">A → Z</span></button>
@@ -426,45 +463,192 @@
 </main>
 
 <footer>
-  <span>Lexique Numérique</span>
+  <span id="footer-label"></span>
   <span id="footer-count"></span>
 </footer>
 
 <script src="lexique-data.js"></script>
 <script>
-let activeCat = "all";
-let sortAZ = true;
+// ── CONFIG ────────────────────────────────────────────────────────────────────
 
-function buildCatTabs() {
-  const allBtn = `<button class="tab ${activeCat==='all'?'on':''}" onclick="setCat('all')">Toutes</button>`;
-  const catBtns = CATS_NUMERIQUE.map(c => {
+const LEXIQUES = {
+  sciences: {
+    title:    "Sciences & Technologies",
+    eyebrow:  "Référence · 2026",
+    subtitle: "Les grands concepts fondateurs des sciences et des technologies : méthode scientifique, disciplines, mesure, énergie, matière, vie, espace et innovation.",
+    terms:    () => terms_sciences,
+    cats:     () => CATS_SCIENCES,
+    parent:   null,
+  },
+  numerique: {
+    title:    "Numérique",
+    eyebrow:  "Sous-lexique · Sciences & Technologies",
+    subtitle: "Les grands concepts du monde numérique : internet, données, IA, design, droit, télécommunications, économie et société.",
+    terms:    () => terms_numerique,
+    cats:     () => CATS_NUMERIQUE,
+    parent:   "sciences",
+  },
+  informatique: {
+    title:    "Informatique",
+    eyebrow:  "Sous-lexique · Numérique",
+    subtitle: "Les termes essentiels du développement, des réseaux, de la sécurité et des systèmes.",
+    terms:    () => terms_info,
+    cats:     () => CATS_INFO,
+    parent:   "numerique",
+  },
+  api: {
+    title:    "API",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Endpoints, méthodes HTTP, authentification, formats et architecture des interfaces programmatiques.",
+    terms:    () => terms_api,
+    cats:     () => CATS_API,
+    parent:   "informatique",
+  },
+  serveur: {
+    title:    "Serveur",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Architecture, hébergement, virtualisation, protocoles, administration et stockage des serveurs.",
+    terms:    () => terms_serveur,
+    cats:     () => CATS_SERVEUR,
+    parent:   "informatique",
+  },
+  internet: {
+    title:    "Internet",
+    eyebrow:  "Sous-lexique · Numérique",
+    subtitle: "Infrastructure, protocoles, web, services, identité en ligne et gouvernance du réseau mondial.",
+    terms:    () => terms_internet,
+    cats:     () => CATS_INTERNET,
+    parent:   "numerique",
+  },
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+
+let currentId = "numerique";
+let activeCat = "all";
+let sortAZ    = true;
+
+// ── ROUTER ────────────────────────────────────────────────────────────────────
+
+function getRoute() {
+  const hash = location.hash.slice(1);
+  return LEXIQUES[hash] ? hash : "numerique";
+}
+
+window.addEventListener("hashchange", () => {
+  renderPage(getRoute());
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// ── BREADCRUMB ────────────────────────────────────────────────────────────────
+
+function buildBreadcrumb(id) {
+  const lex = LEXIQUES[id];
+  const el  = document.getElementById("breadcrumb");
+
+  if (!lex.parent) {
+    el.classList.remove("visible");
+    return;
+  }
+
+  // Walk up the parent chain
+  const chain = [];
+  let cur = lex.parent;
+  while (cur) {
+    chain.unshift(cur);
+    cur = LEXIQUES[cur]?.parent;
+  }
+
+  el.innerHTML = chain.map((pid, i) =>
+    `<a href="#${pid}">${i === 0 ? "← " : ""}${LEXIQUES[pid].title}</a><span class="breadcrumb-sep">/</span>`
+  ).join("") + `<span class="breadcrumb-current">${lex.title}</span>`;
+
+  el.classList.add("visible");
+}
+
+// ── RENDER PAGE ───────────────────────────────────────────────────────────────
+
+function renderPage(id) {
+  const lex  = LEXIQUES[id];
+  currentId  = id;
+  activeCat  = "all";
+  sortAZ     = true;
+
+  // <title>
+  document.title = `Lexique — ${lex.title}`;
+
+  // Header
+  const header = document.getElementById("header");
+  header.className = lex.parent ? "sub" : "";
+
+  document.getElementById("header-eyebrow").textContent = lex.eyebrow;
+  document.getElementById("header-title").innerHTML     = `Lexique <em>${lex.title}</em>`;
+  document.getElementById("header-sub").textContent     = lex.subtitle;
+
+  // Stats
+  const terms    = lex.terms();
+  const subCount = terms.filter(t => t.subLexique).length;
+
+  document.getElementById("stat-terms").textContent = terms.length;
+  document.getElementById("stat-cats").textContent  = lex.cats().length;
+
+  const subWrap = document.getElementById("stat-sub-wrap");
+  if (subCount > 0) {
+    document.getElementById("stat-subs").textContent       = subCount;
+    document.getElementById("stat-subs-label").textContent = subCount > 1 ? "sous-lexiques" : "sous-lexique";
+    subWrap.style.display = "";
+  } else {
+    subWrap.style.display = "none";
+  }
+
+  // Footer
+  document.getElementById("footer-label").textContent = `Lexique ${lex.title}`;
+  document.getElementById("footer-count").textContent = `${terms.length} termes · ${lex.title}`;
+
+  // Sort reset
+  document.getElementById("sort-icon").textContent = "↓";
+  document.getElementById("sort-label").textContent = "A → Z";
+
+  // Search reset
+  document.getElementById("search").value = "";
+
+  buildBreadcrumb(id);
+  buildCatTabs(id);
+  renderGrid();
+}
+
+// ── CAT TABS ──────────────────────────────────────────────────────────────────
+
+function buildCatTabs(id) {
+  const cats   = LEXIQUES[id].cats();
+  const allBtn = `<button class="tab ${activeCat === "all" ? "on" : ""}" onclick="setCat('all')">Toutes</button>`;
+  const btns   = cats.map(c => {
     const col = CAT_COLORS[c] || "#888";
-    return `<button class="tab ${c===activeCat?'on':''}" onclick="setCat('${c}')">
+    return `<button class="tab ${c === activeCat ? "on" : ""}" onclick="setCat('${c}')">
       <span class="tab-dot" style="background:${col}"></span>${CAT_LABELS[c]}
     </button>`;
   }).join("");
-  document.getElementById("cat-tabs").innerHTML = allBtn + catBtns;
+  document.getElementById("cat-tabs").innerHTML = allBtn + btns;
 }
 
 function setCat(id) {
   activeCat = id;
-  buildCatTabs();
-  render();
+  buildCatTabs(currentId);
+  renderGrid();
 }
 
-function toggleSort() {
-  sortAZ = !sortAZ;
-  document.getElementById("sort-icon").textContent = sortAZ ? "↓" : "↑";
-  document.getElementById("sort-label").textContent = sortAZ ? "A → Z" : "Z → A";
-  render();
-}
+// ── GRID ──────────────────────────────────────────────────────────────────────
 
-function render() {
-  const q = document.getElementById("search").value.toLowerCase().trim();
+function renderGrid() {
+  const q      = document.getElementById("search").value.toLowerCase().trim();
+  const terms  = LEXIQUES[currentId].terms();
 
-  let filtered = terms_numerique.filter(t => {
+  let filtered = terms.filter(t => {
     const mc = activeCat === "all" || t.cat === activeCat;
-    const mq = !q || t.name.toLowerCase().includes(q) || t.def.toLowerCase().includes(q) || (t.en||"").toLowerCase().includes(q);
+    const mq = !q
+      || t.name.toLowerCase().includes(q)
+      || t.def.toLowerCase().includes(q)
+      || (t.en || "").toLowerCase().includes(q);
     return mc && mq;
   });
 
@@ -473,7 +657,8 @@ function render() {
     : b.name.localeCompare(a.name, "fr")
   );
 
-  document.getElementById("count-label").textContent = `${filtered.length} terme${filtered.length !== 1 ? "s" : ""}`;
+  document.getElementById("count-label").textContent =
+    `${filtered.length} terme${filtered.length !== 1 ? "s" : ""}`;
 
   const grid = document.getElementById("grid");
 
@@ -483,11 +668,12 @@ function render() {
   }
 
   grid.innerHTML = filtered.map((t, i) => {
-    const col = CAT_COLORS[t.cat] || "#888";
-    const bg  = col + "18";
-    const delay = Math.min(i * 18, 300);
-    const tag = t.subLexique ? "a" : "div";
-    const href = t.subLexique ? ` href="${t.subLexique}"` : "";
+    const col    = CAT_COLORS[t.cat] || "#888";
+    const bg     = col + "18";
+    const delay  = Math.min(i * 18, 300);
+    const isLink = !!t.subLexique;
+    const tag    = isLink ? "a" : "div";
+    const href   = isLink ? ` href="#${t.subLexique}"` : "";
 
     return `<${tag} class="card"${href} style="animation-delay:${delay}ms">
       <div class="card-top">
@@ -495,29 +681,38 @@ function render() {
         <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${CAT_LABELS[t.cat]}</span>
       </div>
       <div class="term-def">${t.def}</div>
-      ${t.ex ? `<div class="term-ex">${t.ex}</div>` : ""}
+      ${t.ex   ? `<div class="term-ex">${t.ex}</div>` : ""}
       ${t.en && t.en !== t.name ? `<div class="term-en">${t.en}</div>` : ""}
-      ${t.subLexique ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${t.name}</div>` : ""}
+      ${isLink  ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${t.name}</div>` : ""}
     </${tag}>`;
   }).join("");
 }
 
-document.getElementById("total-count").textContent = terms_numerique.length;
-document.getElementById("footer-count").textContent = terms_numerique.length + " termes · Numérique";
-buildCatTabs();
-render();
+// ── SORT ──────────────────────────────────────────────────────────────────────
 
-function toggleTheme() {
-  const isLight = document.documentElement.classList.toggle('light');
-  document.getElementById('theme-btn').textContent = isLight ? '☽' : '☀';
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+function toggleSort() {
+  sortAZ = !sortAZ;
+  document.getElementById("sort-icon").textContent = sortAZ ? "↓" : "↑";
+  document.getElementById("sort-label").textContent = sortAZ ? "A → Z" : "Z → A";
+  renderGrid();
 }
 
-(function() {
-  if (localStorage.getItem('theme') === 'light') {
-    document.documentElement.classList.add('light');
-    document.getElementById('theme-btn').textContent = '☽';
+// ── THEME ─────────────────────────────────────────────────────────────────────
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle("light");
+  document.getElementById("theme-btn").textContent = isLight ? "☽" : "☀";
+  localStorage.setItem("theme", isLight ? "light" : "dark");
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+(function init() {
+  if (localStorage.getItem("theme") === "light") {
+    document.documentElement.classList.add("light");
+    document.getElementById("theme-btn").textContent = "☽";
   }
+  renderPage(getRoute());
 })();
 </script>
 </body>
