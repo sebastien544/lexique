@@ -512,6 +512,14 @@ const LEXIQUES = {
     cats:     () => CATS_SERVEUR,
     parent:   "informatique",
   },
+  web: {
+    title:    "Web",
+    eyebrow:  "Sous-lexique · Internet",
+    subtitle: "Les termes essentiels du World Wide Web : langages, frameworks, architecture, performance, accessibilité, SEO et outils du développeur web.",
+    terms:    () => terms_web,
+    cats:     () => CATS_WEB,
+    parent:   "internet",
+  },
   internet: {
     title:    "Internet",
     eyebrow:  "Sous-lexique · Numérique",
@@ -639,6 +647,14 @@ function setCat(id) {
 
 // ── GRID ──────────────────────────────────────────────────────────────────────
 
+function esc(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function renderGrid() {
   const q      = document.getElementById("search").value.toLowerCase().trim();
   const terms  = LEXIQUES[currentId].terms();
@@ -677,13 +693,13 @@ function renderGrid() {
 
     return `<${tag} class="card"${href} style="animation-delay:${delay}ms">
       <div class="card-top">
-        <span class="term-name">${t.name}</span>
-        <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${CAT_LABELS[t.cat]}</span>
+        <span class="term-name">${esc(t.name)}</span>
+        <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${esc(CAT_LABELS[t.cat])}</span>
       </div>
-      <div class="term-def">${t.def}</div>
-      ${t.ex   ? `<div class="term-ex">${t.ex}</div>` : ""}
-      ${t.en && t.en !== t.name ? `<div class="term-en">${t.en}</div>` : ""}
-      ${isLink  ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${t.name}</div>` : ""}
+      <div class="term-def">${esc(t.def)}</div>
+      ${t.ex   ? `<div class="term-ex">${esc(t.ex)}</div>` : ""}
+      ${t.en && t.en !== t.name ? `<div class="term-en">${esc(t.en)}</div>` : ""}
+      ${isLink  ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${esc(t.name)}</div>` : ""}
     </${tag}>`;
   }).join("");
 }
