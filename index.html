@@ -659,7 +659,7 @@
   .modal-close:hover { color: var(--text); border-color: var(--border-hover); }
 
   .modal .lex-pill { margin-bottom: 12px; }
-  .modal .lex-pill.link, .modal .ref-pill b.link { cursor: pointer; }
+  .modal .lex-pill.link, .modal .ref-pill b.link { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   .modal .lex-pill.link:hover { filter: brightness(1.15); }
 
   .modal-title {
@@ -885,6 +885,14 @@ const LEXIQUES = {
     cats:     () => CATS_CONNAISSANCE,
     parent:   null,
   },
+  droit: {
+    title:    "Droit & Administration",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Le vocabulaire des démarches et du droit français : justice, contrats, entreprise et association, travail, impôts, administration, famille, logement, consommation.",
+    terms:    () => terms_droit,
+    cats:     () => CATS_DROIT,
+    parent:   "connaissance",
+  },
   shs: {
     title:    "Sciences humaines & sociales",
     eyebrow:  "Sous-lexique · Connaissance",
@@ -1016,6 +1024,7 @@ const LEX_ICONS = {
   christianisme: '<path d="M12 2v20"/><path d="M6 8h12"/>',
   islam:        '<path d="M15.5 3.5A9 9 0 1 0 20.5 15a7 7 0 1 1-5-11.5z"/><path d="m18.5 3.5.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L15.5 5.7l2.1-.3z"/>',
   crypto:       '<circle cx="12" cy="12" r="10"/><path d="M9.5 7h4a2.25 2.25 0 0 1 0 4.5h-4"/><path d="M9.5 11.5h4.5a2.25 2.25 0 0 1 0 4.5h-4.5"/><path d="M9.5 7v9"/><path d="M11 5v2M11 16v2"/>',
+  droit:        '<path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 14a3 3 0 0 0 6 0z"/><path d="m19 7-3 7a3 3 0 0 0 6 0z"/><path d="M8 21h8"/>',
   sciences:     '<path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5l-5.1-10.1a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
   numerique:    '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
   informatique: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>',
@@ -1135,6 +1144,14 @@ function goToHash() {
 
 window.addEventListener("hashchange", goToHash);
 
+// Ouvre un lexique en haut de page, sans reprendre la position mémorisée
+function openLexique(lexId) {
+  closeModal();
+  if (STATE.scroll) { delete STATE.scroll[lexId]; saveState(); }
+  if (getRoute() === lexId) { setTermInUrl(null); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else location.hash = "#" + lexId;
+}
+
 function openTerm(lexId, slug) {
   pendingSlug = slug;
   if (location.hash === "#" + lexId + "/" + slug) goToHash(); else location.hash = "#" + lexId + "/" + slug;
@@ -1235,7 +1252,7 @@ function renderIndex() {
   document.getElementById("header-title").innerHTML     = `Tous les <em>lexiques</em>`;
   document.getElementById("header-sub").textContent     = SHOW_TREE
     ? "L'arborescence complète, du plus général au plus spécialisé. Chaque lexique s'ouvre d'un clic."
-    : "Un mot, une définition, un exemple : la recherche couvre les seize lexiques d'un coup.";
+    : "Un mot, une définition, un exemple : la recherche couvre les dix-sept lexiques d'un coup.";
   document.getElementById("tree-page").classList.toggle("no-tree", !SHOW_TREE);
   document.getElementById("stat-terms").textContent     = allTerms;
   document.getElementById("stat-cats").textContent      = allCats;
@@ -1523,11 +1540,9 @@ function openCard(lexId, slug) {
   const elsewhere = lexId !== currentId || document.body.classList.contains("page-lexiques");
 
   const actions = [];
-  const link = location.href.split("#")[0] + "#" + lexId + "/" + slug;
-  actions.push(`<button class="modal-btn" onclick="copyLink(this, '${link}')">Copier le lien</button>`);
   if (t.subLexique) actions.push(`<a class="modal-btn" href="#${t.subLexique}" onclick="closeModal()">↗ Ouvrir le lexique ${esc(t.name)}</a>`);
   const lexPill = elsewhere
-    ? `<span class="lex-pill link" data-tip="Voir le lexique ${esc(lex.title)}" onclick="closeModal(); openTerm('${lexId}','${slug}')">${lexIcon(lexId)}${esc(lex.title)}</span>`
+    ? `<span class="lex-pill link" data-tip="Voir le lexique ${esc(lex.title)}" onclick="openLexique('${lexId}')">${lexIcon(lexId)}${esc(lex.title)}</span>`
     : `<span class="lex-pill">${lexIcon(lexId)}${esc(lex.title)}</span>`;
   const others = conceptOccurrences(t.homeId, t.homeName).filter(o => o.lexId !== lexId && o.lexId !== t.homeId);
   others.forEach(o => actions.push(`<button class="modal-btn" onclick="closeModal(); openTerm('${o.lexId}','${slugify(o.name)}')">Aussi dans ${esc(LEXIQUES[o.lexId].title)}</button>`));
@@ -1558,11 +1573,7 @@ function closeModal() {
   if (location.hash.includes("/")) setTermInUrl(null);
 }
 
-function copyLink(btn, link) {
-  const done = () => { const t = btn.textContent; btn.textContent = "Lien copié"; setTimeout(() => btn.textContent = t, 1500); };
-  if (navigator.clipboard) navigator.clipboard.writeText(link).then(done, () => prompt("Copier le lien :", link));
-  else prompt("Copier le lien :", link);
-}
+
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 window.addEventListener("hashchange", () => { if (!parseHash().slug) closeModal(); }, true);
