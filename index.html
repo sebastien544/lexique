@@ -467,6 +467,46 @@
   }
 
   body.page-lexiques .tree { display: block; }
+
+  /* ── VUE NODALE ── */
+  /* bouton d'accès à l'arbre, à gauche du bouton de thème, seulement sur l'accueil */
+  .graph-btn {
+    position: fixed;
+    top: 1.25rem;
+    right: 4.6rem;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all .2s;
+  }
+  .graph-btn:hover { border-color: var(--border-hover); color: var(--accent); }
+  .graph-btn .lx-icon { width: 15px; height: 15px; stroke-width: 1.75; }
+  body.page-lexiques .graph-btn { display: flex; }
+
+  #graph-page { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; display: none; opacity: 0; animation: fadeUp .5s .3s ease forwards; overflow-x: auto; }
+  body.page-graph #graph-page { display: block; }
+  body.page-graph .controls, body.page-graph .main, body.page-graph footer { display: none; }
+  body.page-graph header { text-align: center; padding-bottom: 1rem; }
+  body.page-graph .header-sub { margin-left: auto; margin-right: auto; }
+  body.page-graph .stats-row { display: none; }
+
+  .graph { display: block; margin: 0 auto; font-family: 'DM Sans', sans-serif; }
+  .graph .edge { fill: none; stroke: var(--border-hover); stroke-width: 1.5; }
+  .graph .node rect { fill: var(--surface); stroke: var(--border); stroke-width: 1; transition: stroke .15s; }
+  .graph .node { cursor: pointer; }
+  .graph .node:hover rect { stroke: var(--accent); }
+  .graph .node .title { fill: var(--text); font-size: 12.5px; font-weight: 500; }
+  .graph .node .count { fill: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; }
+  .graph .node .lx-icon { color: var(--accent); width: 18px; height: 18px; }
+  .graph .node.root rect { stroke: var(--accent); }
   body.page-lexiques .controls,
   body.page-lexiques .main { display: none; }
 
@@ -783,6 +823,7 @@
     .term-ex { white-space: normal; word-break: break-word; }
     footer { padding: 1rem; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
     .theme-toggle { top: 0.75rem; right: 0.75rem; padding: 5px 11px; }
+    .graph-btn { top: 0.75rem; right: 3.6rem; }
     .tree { padding-left: 1rem; padding-right: 1rem; }
     .tree-row { flex-wrap: wrap; padding: 12px; }
     .tree-row[data-depth="1"] { margin-left: 1rem; }
@@ -801,6 +842,7 @@
 </head>
 <body>
 
+<a class="graph-btn" href="#arbre" title="Arbre des lexiques" aria-label="Arbre des lexiques"><svg class="lx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg></a>
 <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀</button>
 
 <nav class="breadcrumb" id="breadcrumb"></nav>
@@ -861,6 +903,8 @@
   </div>
 </section>
 
+<section id="graph-page"></section>
+
 <div class="modal-bg" id="modal" onclick="if (event.target === this) closeModal()">
   <div class="modal" role="dialog" aria-modal="true" id="modal-box"></div>
 </div>
@@ -901,6 +945,14 @@ const LEXIQUES = {
     cats:     () => CATS_SHS,
     parent:   "connaissance",
   },
+  economie: {
+    title:    "Économie & Finance",
+    eyebrow:  "Sous-lexique · Sciences humaines & sociales",
+    subtitle: "Comprendre l'argent, le sien et celui du pays : marchés, monnaie, emploi, État, entreprise, finances personnelles, Bourse, commerce international, écoles de pensée.",
+    terms:    () => terms_economie,
+    cats:     () => CATS_ECO,
+    parent:   "shs",
+  },
   christianisme: {
     title:    "Christianisme",
     eyebrow:  "Sous-lexique · Sciences humaines & sociales",
@@ -924,6 +976,14 @@ const LEXIQUES = {
     terms:    () => terms_sciences,
     cats:     () => CATS_SCIENCES,
     parent:   "connaissance",
+  },
+  medecine: {
+    title:    "Corps humain & Médecine",
+    eyebrow:  "Sous-lexique · Sciences & Technologies",
+    subtitle: "Comprendre son corps et le système de soins : organes, fonctions vitales, maladies, examens, traitements, professionnels, Sécurité sociale, prévention.",
+    terms:    () => terms_medecine,
+    cats:     () => CATS_MEDECINE,
+    parent:   "sciences",
   },
   numerique: {
     title:    "Numérique",
@@ -979,6 +1039,14 @@ const LEXIQUES = {
     subtitle: "Faire tourner les tâches sans y toucher : workflows, déclencheurs, connexions, outils (n8n, Make, Zapier), fiabilité et cas d'usage.",
     terms:    () => terms_automatisation,
     cats:     () => CATS_AUTO,
+    parent:   "informatique",
+  },
+  bdd: {
+    title:    "Données & Bases de données",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Ranger et retrouver l'information : modèle relationnel, SQL, moteurs, NoSQL, modélisation, exploitation, analyse et gouvernance.",
+    terms:    () => terms_bdd,
+    cats:     () => CATS_BDD,
     parent:   "informatique",
   },
   developpement: {
@@ -1037,11 +1105,13 @@ const LEXIQUES = {
 const LEX_ICONS = {
   connaissance: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
   shs:          '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  economie:     '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/>',
   christianisme: '<path d="M12 2v20"/><path d="M6 8h12"/>',
   islam:        '<path d="M15.5 3.5A9 9 0 1 0 20.5 15a7 7 0 1 1-5-11.5z"/><path d="m18.5 3.5.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L15.5 5.7l2.1-.3z"/>',
   crypto:       '<circle cx="12" cy="12" r="10"/><path d="M9.5 7h4a2.25 2.25 0 0 1 0 4.5h-4"/><path d="M9.5 11.5h4.5a2.25 2.25 0 0 1 0 4.5h-4.5"/><path d="M9.5 7v9"/><path d="M11 5v2M11 16v2"/>',
   droit:        '<path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 14a3 3 0 0 0 6 0z"/><path d="m19 7-3 7a3 3 0 0 0 6 0z"/><path d="M8 21h8"/>',
   sciences:     '<path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5l-5.1-10.1a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
+  medecine:     '<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/><path d="M3.2 12h4.3l2-3 2.5 6 2-4 1.2 1h3.6"/>',
   numerique:    '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
   informatique: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>',
   api:          '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
@@ -1049,6 +1119,7 @@ const LEX_ICONS = {
   internet:     '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
   web:          '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/>',
   automatisation: '<path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.9 4.9 2.8 2.8"/><path d="m16.3 16.3 2.8 2.8"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.9 19.1 2.8-2.8"/><path d="m16.3 7.7 2.8-2.8"/><circle cx="12" cy="12" r="3"/>',
+  bdd:          '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
   developpement: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/><path d="m14 4-4 16"/>',
   securite:     '<path d="M20 13c0 5-3.5 7.5-7.7 8.8a2 2 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.6a1 1 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
   design:       '<path d="M15.5 3.5 20.5 8.5 8 21H3v-5z"/><path d="m12.5 6.5 5 5"/>',
@@ -1101,11 +1172,13 @@ let sortAZ    = true;
 // ── ROUTER ────────────────────────────────────────────────────────────────────
 
 const INDEX_ROUTE = "lexiques";
+const GRAPH_ROUTE = "arbre";
 const SHOW_TREE   = false; // arbre des lexiques sur la page d'accueil (masqué pour le moment, la recherche est mise en avant)
 
 // L'adresse porte le lexique et, après une barre, le terme ouvert : #serveur/smtp
 function parseHash() {
   const [route, slug] = location.hash.slice(1).split("/");
+  if (route === GRAPH_ROUTE) return { route: GRAPH_ROUTE, slug: null };
   return { route: LEXIQUES[route] ? route : INDEX_ROUTE, slug: LEXIQUES[route] && slug ? decodeURIComponent(slug) : null };
 }
 
@@ -1201,7 +1274,9 @@ function buildBreadcrumb(id) {
 // ── RENDER PAGE ───────────────────────────────────────────────────────────────
 
 function renderPage(id) {
+  document.body.classList.remove("page-graph");
   if (id === INDEX_ROUTE) { renderIndex(); return; }
+  if (id === GRAPH_ROUTE) { renderGraph(); return; }
   document.body.classList.remove("page-lexiques");
 
   const lex  = LEXIQUES[id];
@@ -1270,7 +1345,7 @@ function renderIndex() {
   document.getElementById("header-title").innerHTML     = `Tous les <em>lexiques</em>`;
   document.getElementById("header-sub").textContent     = SHOW_TREE
     ? "L'arborescence complète, du plus général au plus spécialisé. Chaque lexique s'ouvre d'un clic."
-    : "Un mot, une définition, un exemple : la recherche couvre les dix-neuf lexiques d'un coup.";
+    : "Un mot, une définition, un exemple : la recherche couvre les vingt-deux lexiques d'un coup.";
   document.getElementById("tree-page").classList.toggle("no-tree", !SHOW_TREE);
   document.getElementById("stat-terms").textContent     = allTerms;
   document.getElementById("stat-cats").textContent      = allCats;
@@ -1309,6 +1384,63 @@ function renderIndex() {
   if (!SHOW_TREE) document.getElementById("gsearch").focus();
   restoreScroll(INDEX_ROUTE);
   restoreModal();
+}
+
+// ── VUE NODALE ────────────────────────────────────────────────────────────────
+// Arbre des lexiques dessiné en SVG depuis LEXIQUES (parent → enfants), racine à gauche.
+
+function renderGraph() {
+  document.body.classList.remove("page-lexiques");
+  document.body.classList.add("page-graph");
+  document.title = "Lexique — Arbre des lexiques";
+
+  const el = document.getElementById("breadcrumb");
+  el.innerHTML = `<a href="#${INDEX_ROUTE}">← Tous les lexiques</a><span class="breadcrumb-sep">/</span><span class="breadcrumb-current">Arbre</span>`;
+  el.classList.add("visible");
+
+  const header = document.getElementById("header");
+  header.className = "sub";
+  document.getElementById("header-eyebrow").textContent = "Vue nodale";
+  document.getElementById("header-title").innerHTML     = `Arbre des <em>lexiques</em>`;
+  document.getElementById("header-sub").textContent     = "Chaque lexique et ses sous-lexiques, du plus général au plus spécialisé. Un clic ouvre le lexique.";
+
+  // Géométrie
+  const W = 222, H = 46, GX = 44, GY = 12;
+  const ids = Object.keys(LEXIQUES);
+  const children = id => ids.filter(k => LEXIQUES[k].parent === id);
+  const roots = ids.filter(k => !LEXIQUES[k].parent);
+
+  // hauteur de chaque sous-arbre, en unités de nœuds
+  const height = id => { const c = children(id); return c.length ? c.reduce((n, k) => n + height(k), 0) : 1; };
+  const pos = {}; let maxDepth = 0;
+  function place(id, depth, top) {
+    const h = height(id); maxDepth = Math.max(maxDepth, depth);
+    pos[id] = { x: depth * (W + GX), y: top + ((h - 1) * (H + GY)) / 2, depth };
+    let cursor = top;
+    for (const k of children(id)) { place(k, depth + 1, cursor); cursor += height(k) * (H + GY); }
+  }
+  let cursor = 0;
+  for (const r of roots) { place(r, 0, cursor); cursor += height(r) * (H + GY); }
+  const totalW = (maxDepth + 1) * W + maxDepth * GX, totalH = cursor - GY;
+
+  const edges = ids.filter(k => LEXIQUES[k].parent).map(k => {
+    const a = pos[LEXIQUES[k].parent], b = pos[k];
+    const x1 = a.x + W, y1 = a.y + H / 2, x2 = b.x, y2 = b.y + H / 2, mx = (x1 + x2) / 2;
+    return `<path class="edge" d="M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}"/>`;
+  }).join("");
+
+  const nodes = ids.map(k => {
+    const p = pos[k], lex = LEXIQUES[k], n = lex.terms().length;
+    const icon = LEX_ICONS[k] ? `<svg class="lx-icon" x="12" y="${H / 2 - 9}" width="18" height="18" viewBox="0 0 24 24">${LEX_ICONS[k]}</svg>` : "";
+    return `<g class="node${lex.parent ? "" : " root"}" transform="translate(${p.x},${p.y})" onclick="location.hash='#${k}'" tabindex="0" role="link">
+      <rect width="${W}" height="${H}" rx="10"/>${icon}
+      <text class="title" x="${icon ? 38 : 14}" y="${H / 2 - 2}">${esc(lex.title)}</text>
+      <text class="count" x="${icon ? 38 : 14}" y="${H / 2 + 13}">${n} termes</text>
+    </g>`;
+  }).join("");
+
+  document.getElementById("graph-page").innerHTML =
+    `<svg class="graph" viewBox="-2 -2 ${totalW + 4} ${totalH + 4}" width="${totalW}" height="${totalH}" style="max-width:100%;height:auto">${edges}${nodes}</svg>`;
 }
 
 // ── RECHERCHE GLOBALE ─────────────────────────────────────────────────────────
