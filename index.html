@@ -973,6 +973,14 @@ const LEXIQUES = {
     cats:     () => CATS_IA,
     parent:   "informatique",
   },
+  automatisation: {
+    title:    "Automatisation & No-code",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Faire tourner les tâches sans y toucher : workflows, déclencheurs, connexions, outils (n8n, Make, Zapier), fiabilité et cas d'usage.",
+    terms:    () => terms_automatisation,
+    cats:     () => CATS_AUTO,
+    parent:   "informatique",
+  },
   developpement: {
     title:    "Développement",
     eyebrow:  "Sous-lexique · Informatique",
@@ -1040,6 +1048,7 @@ const LEX_ICONS = {
   serveur:      '<rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/>',
   internet:     '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
   web:          '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/>',
+  automatisation: '<path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.9 4.9 2.8 2.8"/><path d="m16.3 16.3 2.8 2.8"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.9 19.1 2.8-2.8"/><path d="m16.3 7.7 2.8-2.8"/><circle cx="12" cy="12" r="3"/>',
   developpement: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/><path d="m14 4-4 16"/>',
   securite:     '<path d="M20 13c0 5-3.5 7.5-7.7 8.8a2 2 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.6a1 1 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
   design:       '<path d="M15.5 3.5 20.5 8.5 8 21H3v-5z"/><path d="m12.5 6.5 5 5"/>',
@@ -1261,7 +1270,7 @@ function renderIndex() {
   document.getElementById("header-title").innerHTML     = `Tous les <em>lexiques</em>`;
   document.getElementById("header-sub").textContent     = SHOW_TREE
     ? "L'arborescence complète, du plus général au plus spécialisé. Chaque lexique s'ouvre d'un clic."
-    : "Un mot, une définition, un exemple : la recherche couvre les dix-huit lexiques d'un coup.";
+    : "Un mot, une définition, un exemple : la recherche couvre les dix-neuf lexiques d'un coup.";
   document.getElementById("tree-page").classList.toggle("no-tree", !SHOW_TREE);
   document.getElementById("stat-terms").textContent     = allTerms;
   document.getElementById("stat-cats").textContent      = allCats;
@@ -1529,7 +1538,6 @@ function renderGrid() {
       </div>
       <div class="term-def">${linkFor(t)(t.def, t.homeName)}</div>
       ${t.en && t.en !== t.name ? `<div class="term-en">${esc(t.en)}</div>` : ""}
-      ${refPill(t)}
       ${isLink  ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${esc(t.name)}</div>` : ""}
     </div>`;
   }).join("");
