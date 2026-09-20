@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lexique Numérique</title>
+<title>Lexique</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f1c40f'/%3E%3Cg fill='none' stroke='%23161616' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16h12a8 8 0 0 1 8 8v26a6 6 0 0 0-6-6H12z'/%3E%3Cpath d='M52 16H40a8 8 0 0 0-8 8v26a6 6 0 0 1 6-6h14z'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -33,6 +34,25 @@
     line-height: 1.6;
     min-height: 100vh;
   }
+
+  /* ── ICÔNES DES LEXIQUES ── */
+  .lx-icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+
+  h1 .lx-icon { width: .62em; height: .62em; vertical-align: -0.02em; margin-right: .18em; color: var(--accent); stroke-width: 1.5; opacity: .9; }
+  .breadcrumb .lx-icon { width: 13px; height: 13px; margin-right: 5px; vertical-align: -2px; opacity: .8; }
+  .lex-pill .lx-icon { width: 11px; height: 11px; margin-right: 5px; vertical-align: -1.5px; stroke-width: 2; }
+  .ref-pill .lx-icon { width: 11px; height: 11px; margin: 0 3px 0 1px; vertical-align: -1.5px; stroke-width: 2; }
+  .tree-title .lx-icon { width: .9em; height: .9em; margin-right: .4em; color: var(--accent); vertical-align: -0.08em; }
 
   /* ── BREADCRUMB ── */
   .breadcrumb {
@@ -135,7 +155,7 @@
     font-size: 16px;
   }
 
-  #search {
+  .search-input {
     width: 100%;
     background: var(--surface);
     border: 0.5px solid var(--border);
@@ -148,12 +168,35 @@
     transition: border-color .2s, box-shadow .2s;
   }
 
-  #search:focus {
+  .search-input:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(200,240,96,.1);
   }
 
-  #search::placeholder { color: var(--hint); }
+  .search-input { padding-right: 44px; }
+
+  .search-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 0;
+    background: transparent;
+    color: var(--hint);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    transition: color .15s, background .15s;
+  }
+
+  .search-clear:hover { color: var(--text); background: var(--surface2); }
+  .search-wrap.filled .search-clear { display: block; }
+
+  .search-input::placeholder { color: var(--hint); }
 
   .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
 
@@ -231,7 +274,7 @@
     border: 0.5px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 1.1rem 1.2rem;
-    cursor: default;
+    cursor: pointer;
     transition: border-color .2s, background .2s, transform .15s;
     animation: cardIn .35s ease both;
     text-decoration: none;
@@ -245,12 +288,9 @@
     transform: translateY(-1px);
   }
 
-  a.card {
-    cursor: pointer;
-    border-color: rgba(200,240,96,0.2);
-  }
+  .card.sub { border-color: rgba(200,240,96,0.2); }
 
-  a.card:hover { border-color: var(--accent); }
+  .card.sub:hover { border-color: var(--accent); }
 
   .card-top {
     display: flex;
@@ -295,6 +335,36 @@
     white-space: nowrap;
   }
 
+  .term-ex::before {
+    content: "ex.";
+    margin-right: 8px;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: .55;
+  }
+
+  .term-etymo {
+    margin-top: 10px;
+    padding-left: 19px;
+    position: relative;
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .term-etymo::before {
+    content: "⚲";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    font-style: normal;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
   .term-en { margin-top: 8px; font-size: 11px; color: var(--hint); font-style: italic; }
 
   .sub-lexique-hint {
@@ -309,7 +379,7 @@
     transition: opacity .15s;
   }
 
-  a.card:hover .sub-lexique-hint { opacity: 1; }
+  .card.sub:hover .sub-lexique-hint { opacity: 1; }
 
   /* ── EMPTY ── */
   .empty {
@@ -342,6 +412,303 @@
 
   footer span { font-size: 12px; color: var(--hint); font-family: 'DM Mono', monospace; }
 
+  /* ── LIENS ENTRE DÉFINITIONS ── */
+  .def-link {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+    opacity: .8;
+    transition: opacity .15s;
+    cursor: pointer;
+  }
+
+  .def-link:hover { opacity: 1; }
+
+  /* ── INFOBULLE DE DÉFINITION ── */
+  .tip {
+    position: fixed;
+    z-index: 300;
+    max-width: 340px;
+    background: var(--surface);
+    border: 0.5px solid var(--border-hover);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .12s, transform .12s;
+  }
+
+  .tip.on { opacity: 1; transform: none; }
+  .tip-def  { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+  .tip-more { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .tip-hint { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); }
+
+  .card.highlight {
+    border-color: var(--accent) !important;
+    animation: highlightPulse .8s ease forwards;
+  }
+
+  @keyframes highlightPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(200,240,96,.45); }
+    60%  { box-shadow: 0 0 0 10px rgba(200,240,96,0); }
+    100% { box-shadow: none; }
+  }
+
+  /* ── ARBRE DES LEXIQUES ── */
+  .tree {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+    display: none;
+    opacity: 0;
+    animation: fadeUp .5s .5s ease forwards;
+  }
+
+  body.page-lexiques .tree { display: block; }
+  body.page-lexiques .controls,
+  body.page-lexiques .main { display: none; }
+
+  .tree-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: border-color .15s, transform .15s;
+    animation: cardIn .35s ease both;
+  }
+
+  .tree-row:hover { border-color: var(--accent); transform: translateX(3px); }
+
+  .tree-row[data-depth="1"] { margin-left: 2rem; }
+  .tree-row[data-depth="2"] { margin-left: 4rem; }
+  .tree-row[data-depth="3"] { margin-left: 6rem; }
+  .tree-row[data-depth="4"] { margin-left: 8rem; }
+
+  .tree-row[data-depth]:not([data-depth="0"])::before {
+    content: "";
+    position: absolute;
+    left: -1.25rem;
+    top: 50%;
+    width: 0.9rem;
+    height: 0.5px;
+    background: var(--hint);
+  }
+
+  .tree-branch {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--hint);
+    flex-shrink: 0;
+  }
+
+  .tree-body { flex: 1; min-width: 0; }
+
+  .tree-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    line-height: 1.2;
+  }
+
+  .tree-row[data-depth="0"] .tree-title { font-size: 1.4rem; }
+
+  .tree-sub {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .tree-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tree-meta b { color: var(--accent); font-weight: 500; }
+
+  .tree-arrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--hint);
+    flex-shrink: 0;
+    transition: color .15s;
+  }
+
+  .tree-row:hover .tree-arrow { color: var(--accent); }
+
+  /* ── RECHERCHE GLOBALE ── */
+  .tree .search-wrap { margin-bottom: 1.5rem; }
+
+  /* page d'accueil : pas de pied de page, tout est centré autour de la recherche */
+  body.page-lexiques footer { display: none; }
+  body.page-lexiques header { text-align: center; padding-top: 3rem; padding-bottom: 1.5rem; }
+  body.page-lexiques .stats-row { margin-top: 1.5rem; }
+  body.page-lexiques .header-sub { margin-left: auto; margin-right: auto; }
+  body.page-lexiques .stats-row { justify-content: center; }
+  body.page-lexiques .stat { text-align: center; }
+
+  .tree.no-tree #tree-list { display: none; }
+  .tree.no-tree .search-wrap { max-width: 720px; margin-left: auto; margin-right: auto; }
+  .tree.no-tree .gcount { text-align: center; }
+  .tree.no-tree .search-wrap { margin-bottom: 1.5rem; }
+  .tree.no-tree #gsearch { font-size: 18px; padding: 18px 18px 18px 50px; border-radius: var(--radius-lg); }
+  .tree.no-tree .search-icon { left: 18px; font-size: 20px; }
+
+  .gcount {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .tree.searching #tree-list { display: none; }
+  .tree:not(.searching) #gresults,
+  .tree:not(.searching) .gcount { display: none; }
+  .tree.searching #gsuggest { display: none; }
+
+  #gsuggest { margin-top: 1.5rem; }
+  .suggest-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .suggest-head .section-label { margin: 0; }
+
+  .ref-pill {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .06em;
+    color: var(--muted);
+    border: 0.5px dashed var(--border-hover);
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+
+  .ref-pill b { color: var(--accent); font-weight: 500; }
+
+  .lex-pill {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+
+  /* ── FENÊTRE D'UNE CARTE ── */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn .15s ease;
+  }
+
+  .modal-bg.open { display: flex; }
+  body.modal-open { overflow: hidden; }
+
+  .modal {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 0.5px solid var(--border-hover);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem 2.5rem 2rem;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+    animation: modalIn .2s ease;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 0.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .modal-close:hover { color: var(--text); border-color: var(--border-hover); }
+
+  .modal .lex-pill { margin-bottom: 12px; }
+  .modal .lex-pill.link, .modal .ref-pill b.link { cursor: pointer; }
+  .modal .lex-pill.link:hover { filter: brightness(1.15); }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    padding-right: 2.5rem;
+  }
+
+  .modal .badge { font-size: 11px; padding: 3px 11px; margin: 0 0 1.25rem; display: inline-block; }
+
+  .modal .term-def { font-size: 16.5px; line-height: 1.65; color: var(--text); font-weight: 300; }
+
+  .modal .term-etymo { margin-top: 1.25rem; font-size: 14.5px; padding-left: 22px; }
+  .modal .term-etymo::before { font-size: 15px; top: 2px; }
+
+  .modal .term-ex {
+    margin-top: 1.25rem;
+    font-size: 13px;
+    padding: 10px 14px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+  }
+
+  .modal .term-en { margin-top: 1rem; font-size: 13px; }
+
+  .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.75rem; }
+
+  .modal-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .03em;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 0.5px solid transparent;
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .15s;
+  }
+
+  .modal-btn:hover { border-color: var(--accent); }
+
+  @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(12px); }
@@ -372,10 +739,11 @@
     --accent-dim: rgba(58,104,0,0.09);
   }
 
-  :root.light #search:focus { box-shadow: 0 0 0 3px rgba(58,104,0,0.12); }
+  :root.light .search-input:focus { box-shadow: 0 0 0 3px rgba(58,104,0,0.12); }
   :root.light .term-ex { background: rgba(58,104,0,0.06); border-color: rgba(58,104,0,0.18); }
-  :root.light a.card { border-color: rgba(58,104,0,0.2); }
-  :root.light a.card:hover { border-color: var(--accent); }
+  :root.light .card.sub { border-color: rgba(58,104,0,0.2); }
+  :root.light .card.sub:hover { border-color: var(--accent); }
+  :root.light .modal-bg { background: rgba(26,27,30,0.45); }
   :root.light .sub-lexique-hint { color: var(--accent); }
 
   /* ── THEME TOGGLE ── */
@@ -415,6 +783,18 @@
     .term-ex { white-space: normal; word-break: break-word; }
     footer { padding: 1rem; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
     .theme-toggle { top: 0.75rem; right: 0.75rem; padding: 5px 11px; }
+    .tree { padding-left: 1rem; padding-right: 1rem; }
+    .tree-row { flex-wrap: wrap; padding: 12px; }
+    .tree-row[data-depth="1"] { margin-left: 1rem; }
+    .tree-row[data-depth="2"] { margin-left: 2rem; }
+    .tree-row[data-depth="3"] { margin-left: 3rem; }
+    .tree-row[data-depth="4"] { margin-left: 4rem; }
+    .tree-row[data-depth]:not([data-depth="0"])::before { left: -0.75rem; width: 0.5rem; }
+    .tree-meta { white-space: normal; width: 100%; padding-left: 0; }
+    body.page-lexiques header { padding-top: 1.5rem; }
+    .modal-bg { padding: 0.75rem; }
+    .modal { padding: 1.75rem 1.25rem 1.5rem; max-height: calc(100vh - 1.5rem); }
+    .modal-title { font-size: 1.5rem; }
     .meta-row { flex-wrap: wrap; gap: 0.5rem; }
   }
 </style>
@@ -448,7 +828,8 @@
 <div class="controls">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="search" placeholder="Rechercher un terme, une définition…" oninput="renderGrid()" autocomplete="off" spellcheck="false">
+    <input type="text" id="search" class="search-input" placeholder="Rechercher un terme, une définition…" oninput="renderGrid(); syncClear(this)" autocomplete="off" spellcheck="false">
+    <button class="search-clear" type="button" aria-label="Effacer" title="Effacer" onclick="clearSearch('search')">×</button>
   </div>
   <div class="section-label" style="margin-bottom:8px">Catégorie</div>
   <div class="filter-tabs" id="cat-tabs"></div>
@@ -462,6 +843,30 @@
   <div class="grid" id="grid"></div>
 </main>
 
+<section class="tree" id="tree-page">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="gsearch" class="search-input" placeholder="Rechercher dans tous les lexiques…" oninput="renderGlobal(); syncClear(this)" autocomplete="off" spellcheck="false">
+    <button class="search-clear" type="button" aria-label="Effacer" title="Effacer" onclick="clearSearch('gsearch')">×</button>
+  </div>
+  <div class="gcount" id="gcount"></div>
+  <div id="tree-list"></div>
+  <div class="grid" id="gresults"></div>
+  <div id="gsuggest">
+    <div class="suggest-head">
+      <span class="section-label">Suggestions</span>
+      <button class="sort-btn" onclick="renderSuggestions()" title="D'autres cartes">↻ Rebattre</button>
+    </div>
+    <div class="grid" id="gsuggest-grid"></div>
+  </div>
+</section>
+
+<div class="modal-bg" id="modal" onclick="if (event.target === this) closeModal()">
+  <div class="modal" role="dialog" aria-modal="true" id="modal-box"></div>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
 <footer>
   <span id="footer-label"></span>
   <span id="footer-count"></span>
@@ -472,13 +877,45 @@
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 
 const LEXIQUES = {
+  connaissance: {
+    title:    "Connaissance",
+    eyebrow:  "Référence · 2026",
+    subtitle: "Les concepts fondateurs de la connaissance humaine : épistémologie, apprentissage, mémoire, langage, raisonnement, disciplines du savoir et transmission.",
+    terms:    () => terms_connaissance,
+    cats:     () => CATS_CONNAISSANCE,
+    parent:   null,
+  },
+  shs: {
+    title:    "Sciences humaines & sociales",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Les disciplines étudiant l'être humain, les sociétés, les comportements, les cultures et les institutions : sociologie, psychologie, histoire, économie, anthropologie, philosophie sociale.",
+    terms:    () => terms_shs,
+    cats:     () => CATS_SHS,
+    parent:   "connaissance",
+  },
+  christianisme: {
+    title:    "Christianisme",
+    eyebrow:  "Sous-lexique · Sciences humaines & sociales",
+    subtitle: "Vocabulaire du christianisme : fondements, Écritures, théologie, confessions, sacrements, liturgie, fêtes, institutions, figures et histoire.",
+    terms:    () => terms_christianisme,
+    cats:     () => CATS_CHRISTIANISME,
+    parent:   "shs",
+  },
+  islam: {
+    title:    "Islam",
+    eyebrow:  "Sous-lexique · Sciences humaines & sociales",
+    subtitle: "Vocabulaire de l'islam : fondements, Coran et Sunna, piliers, théologie, droit, courants, pratique, fêtes, figures, institutions, civilisation et histoire.",
+    terms:    () => terms_islam,
+    cats:     () => CATS_ISLAM,
+    parent:   "shs",
+  },
   sciences: {
     title:    "Sciences & Technologies",
-    eyebrow:  "Référence · 2026",
+    eyebrow:  "Sous-lexique · Connaissance",
     subtitle: "Les grands concepts fondateurs des sciences et des technologies : méthode scientifique, disciplines, mesure, énergie, matière, vie, espace et innovation.",
     terms:    () => terms_sciences,
     cats:     () => CATS_SCIENCES,
-    parent:   null,
+    parent:   "connaissance",
   },
   numerique: {
     title:    "Numérique",
@@ -487,6 +924,22 @@ const LEXIQUES = {
     terms:    () => terms_numerique,
     cats:     () => CATS_NUMERIQUE,
     parent:   "sciences",
+  },
+  design: {
+    title:    "Design & UX",
+    eyebrow:  "Sous-lexique · Numérique",
+    subtitle: "Concevoir pour les gens : recherche utilisateur, interaction, design visuel, accessibilité, design system et méthodes.",
+    terms:    () => terms_design,
+    cats:     () => CATS_DESIGN,
+    parent:   "numerique",
+  },
+  crypto: {
+    title:    "Cryptos",
+    eyebrow:  "Sous-lexique · Numérique",
+    subtitle: "Bitcoin, blockchain et ce qui va avec : fonctionnement, portefeuilles, marchés, DeFi, risques, régulation et histoire. Descriptif, sans conseil.",
+    terms:    () => terms_crypto,
+    cats:     () => CATS_CRYPTO,
+    parent:   "numerique",
   },
   informatique: {
     title:    "Informatique",
@@ -502,6 +955,22 @@ const LEXIQUES = {
     subtitle: "Endpoints, méthodes HTTP, authentification, formats et architecture des interfaces programmatiques.",
     terms:    () => terms_api,
     cats:     () => CATS_API,
+    parent:   "informatique",
+  },
+  ia: {
+    title:    "IA",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Les termes de l'intelligence artificielle : fondements, modèles, entraînement, IA générative, agents, alignement et écosystème du calcul.",
+    terms:    () => terms_ia,
+    cats:     () => CATS_IA,
+    parent:   "informatique",
+  },
+  securite: {
+    title:    "Sécurité",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Protéger systèmes et données : menaces, cryptographie, identité, attaques, défenses et bonnes pratiques.",
+    terms:    () => terms_securite,
+    cats:     () => CATS_SECURITE,
     parent:   "informatique",
   },
   serveur: {
@@ -520,6 +989,14 @@ const LEXIQUES = {
     cats:     () => CATS_WEB,
     parent:   "internet",
   },
+  reseaux: {
+    title:    "Réseaux",
+    eyebrow:  "Sous-lexique · Internet",
+    subtitle: "Comment les machines se parlent : couches, adresses, protocoles, routage, matériel, sans fil et diagnostic.",
+    terms:    () => terms_reseaux,
+    cats:     () => CATS_RESEAUX,
+    parent:   "internet",
+  },
   internet: {
     title:    "Internet",
     eyebrow:  "Sous-lexique · Numérique",
@@ -530,34 +1007,144 @@ const LEXIQUES = {
   },
 };
 
+// ── ICÔNES ────────────────────────────────────────────────────────────────────
+// Un pictogramme par lexique, tracé 24×24, trait fin à la couleur du texte.
+
+const LEX_ICONS = {
+  connaissance: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  shs:          '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  christianisme: '<path d="M12 2v20"/><path d="M6 8h12"/>',
+  islam:        '<path d="M15.5 3.5A9 9 0 1 0 20.5 15a7 7 0 1 1-5-11.5z"/><path d="m18.5 3.5.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L15.5 5.7l2.1-.3z"/>',
+  crypto:       '<circle cx="12" cy="12" r="10"/><path d="M9.5 7h4a2.25 2.25 0 0 1 0 4.5h-4"/><path d="M9.5 11.5h4.5a2.25 2.25 0 0 1 0 4.5h-4.5"/><path d="M9.5 7v9"/><path d="M11 5v2M11 16v2"/>',
+  sciences:     '<path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5l-5.1-10.1a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
+  numerique:    '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
+  informatique: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>',
+  api:          '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
+  serveur:      '<rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/>',
+  internet:     '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+  web:          '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/>',
+  securite:     '<path d="M20 13c0 5-3.5 7.5-7.7 8.8a2 2 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.6a1 1 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  design:       '<path d="M15.5 3.5 20.5 8.5 8 21H3v-5z"/><path d="m12.5 6.5 5 5"/>',
+  reseaux:      '<rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/>',
+  ia:           '<path d="M9.9 15.5A2 2 0 0 0 8.5 14.1L2.4 12.5a.5.5 0 0 1 0-1L8.5 9.9A2 2 0 0 0 9.9 8.5l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+};
+
+function lexIcon(id) {
+  const p = LEX_ICONS[id];
+  return p ? `<svg class="lx-icon" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>` : "";
+}
+
+// ── RENVOIS ───────────────────────────────────────────────────────────────────
+// Un terme peut être un renvoi : {name, cat, ref:"internet", refName?} — sa définition,
+// son exemple, son étymologie et son anglais viennent du terme de référence.
+
+function resolveTerm(t, lexId) {
+  if (!t.ref) return { ...t, lexId, homeId: lexId, homeName: t.name };
+  const homeName = t.refName || t.name;
+  const home = (LEXIQUES[t.ref]?.terms() || []).find(x => slugify(x.name) === slugify(homeName));
+  if (!home) return { ...t, lexId, homeId: lexId, homeName: t.name, def: "(définition de référence introuvable)" };
+  return { ...home, name: t.name, cat: t.cat, subLexique: t.subLexique, ref: t.ref, refName: home.name, lexId, homeId: t.ref, homeName: home.name };
+}
+
+// Nom du terme tel qu'il apparaît dans chaque lexique où il est repris
+function conceptOccurrences(homeId, homeName) {
+  const out = [];
+  for (const id of Object.keys(LEXIQUES))
+    for (const t of LEXIQUES[id].terms())
+      if ((t.ref === homeId && slugify(t.refName || t.name) === slugify(homeName)) || (!t.ref && id === homeId && slugify(t.name) === slugify(homeName)))
+        out.push({ lexId: id, name: t.name });
+  return out;
+}
+
+function refPill(r, clickable) {
+  if (!r.ref) return "";
+  const other = r.refName !== r.name ? ` (« ${esc(r.refName)} »)` : "";
+  const home  = clickable
+    ? `<b class="link" data-tip="Voir la référence dans ${esc(LEXIQUES[r.homeId].title)}" onclick="closeModal(); openTerm('${r.homeId}','${slugify(r.homeName)}')">${lexIcon(r.homeId)}${esc(LEXIQUES[r.homeId].title)}</b>`
+    : `<b>${lexIcon(r.homeId)}${esc(LEXIQUES[r.homeId].title)}</b>`;
+  return `<span class="ref-pill">défini dans ${home}${other}</span>`;
+}
+
 // ── STATE ─────────────────────────────────────────────────────────────────────
 
-let currentId = "numerique";
+let currentId = "connaissance";
 let activeCat = "all";
 let sortAZ    = true;
 
 // ── ROUTER ────────────────────────────────────────────────────────────────────
 
-function getRoute() {
-  const hash = location.hash.slice(1);
-  return LEXIQUES[hash] ? hash : "numerique";
+const INDEX_ROUTE = "lexiques";
+const SHOW_TREE   = false; // arbre des lexiques sur la page d'accueil (masqué pour le moment, la recherche est mise en avant)
+
+// L'adresse porte le lexique et, après une barre, le terme ouvert : #serveur/smtp
+function parseHash() {
+  const [route, slug] = location.hash.slice(1).split("/");
+  return { route: LEXIQUES[route] ? route : INDEX_ROUTE, slug: LEXIQUES[route] && slug ? decodeURIComponent(slug) : null };
 }
 
-window.addEventListener("hashchange", () => {
-  renderPage(getRoute());
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+function getRoute() { return parseHash().route; }
+
+// Met à jour l'adresse sans recharger ni ajouter d'entrée d'historique
+function setTermInUrl(slug) {
+  const { route } = parseHash();
+  history.replaceState(null, "", "#" + route + (slug ? "/" + slug : ""));
+}
+
+// ── ÉTAT PERSISTANT ───────────────────────────────────────────────────────────
+// Ce qui survit au rechargement : recherche, catégorie et tri de chaque lexique,
+// recherche globale, position de défilement par page, carte ouverte.
+
+const STATE_KEY = "lexique-state";
+let STATE = (() => { try { return JSON.parse(localStorage.getItem(STATE_KEY)) || {}; } catch { return {}; } })();
+function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(STATE)); } catch {} }
+function lexState(id) { return STATE.lex?.[id] || {}; }
+function setLexState(id, patch) { STATE.lex = STATE.lex || {}; STATE.lex[id] = { ...lexState(id), ...patch }; saveState(); }
+function setModalState(m) { STATE.modal = m; saveState(); }
+
+function saveScroll() { STATE.scroll = STATE.scroll || {}; STATE.scroll[getRoute()] = window.scrollY; saveState(); }
+let scrollTimer = null;
+window.addEventListener("scroll", () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(saveScroll, 150); });
+window.addEventListener("pagehide", saveScroll); // rechargement, fermeture d'onglet
+
+function restoreScroll(route) {
+  const y = STATE.scroll?.[route];
+  if (y) requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: y, behavior: "instant" })));
+}
+
+function restoreModal() {
+  const m = STATE.modal;
+  if (m && m.route === getRoute() && LEXIQUES[m.lexId]) openCard(m.lexId, m.slug);
+}
+
+let pendingSlug = null; // terme à surligner après navigation depuis la recherche globale
+
+let lastRoute = null;
+
+function goToHash() {
+  const { route, slug } = parseHash();
+  const target = pendingSlug || slug;
+  pendingSlug = null;
+  if (route !== lastRoute) {
+    if (target && STATE.scroll) delete STATE.scroll[route]; // on va défiler jusqu'au terme, pas à l'ancienne position
+    renderPage(route);
+    lastRoute = route;
+    if (!target) window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  if (target) { scrollToTerm({}, target); openCard(route, target); }
+}
+
+window.addEventListener("hashchange", goToHash);
+
+function openTerm(lexId, slug) {
+  pendingSlug = slug;
+  if (location.hash === "#" + lexId + "/" + slug) goToHash(); else location.hash = "#" + lexId + "/" + slug;
+}
 
 // ── BREADCRUMB ────────────────────────────────────────────────────────────────
 
 function buildBreadcrumb(id) {
   const lex = LEXIQUES[id];
   const el  = document.getElementById("breadcrumb");
-
-  if (!lex.parent) {
-    el.classList.remove("visible");
-    return;
-  }
 
   // Walk up the parent chain
   const chain = [];
@@ -567,9 +1154,11 @@ function buildBreadcrumb(id) {
     cur = LEXIQUES[cur]?.parent;
   }
 
-  el.innerHTML = chain.map((pid, i) =>
-    `<a href="#${pid}">${i === 0 ? "← " : ""}${LEXIQUES[pid].title}</a><span class="breadcrumb-sep">/</span>`
-  ).join("") + `<span class="breadcrumb-current">${lex.title}</span>`;
+  el.innerHTML = `<a href="#${INDEX_ROUTE}">← Tous les lexiques</a><span class="breadcrumb-sep">/</span>`
+    + chain.map(pid =>
+      `<a href="#${pid}">${lexIcon(pid)}${LEXIQUES[pid].title}</a><span class="breadcrumb-sep">/</span>`
+    ).join("")
+    + `<span class="breadcrumb-current">${lexIcon(id)}${lex.title}</span>`;
 
   el.classList.add("visible");
 }
@@ -577,10 +1166,14 @@ function buildBreadcrumb(id) {
 // ── RENDER PAGE ───────────────────────────────────────────────────────────────
 
 function renderPage(id) {
+  if (id === INDEX_ROUTE) { renderIndex(); return; }
+  document.body.classList.remove("page-lexiques");
+
   const lex  = LEXIQUES[id];
+  const st   = lexState(id);
   currentId  = id;
-  activeCat  = "all";
-  sortAZ     = true;
+  activeCat  = lex.cats().includes(st.cat) ? st.cat : "all";
+  sortAZ     = st.sort !== "za";
 
   // <title>
   document.title = `Lexique — ${lex.title}`;
@@ -590,7 +1183,7 @@ function renderPage(id) {
   header.className = lex.parent ? "sub" : "";
 
   document.getElementById("header-eyebrow").textContent = lex.eyebrow;
-  document.getElementById("header-title").innerHTML     = `Lexique <em>${lex.title}</em>`;
+  document.getElementById("header-title").innerHTML     = `${lexIcon(id)}Lexique <em>${lex.title}</em>`;
   document.getElementById("header-sub").textContent     = lex.subtitle;
 
   // Stats
@@ -613,16 +1206,155 @@ function renderPage(id) {
   document.getElementById("footer-label").textContent = `Lexique ${lex.title}`;
   document.getElementById("footer-count").textContent = `${terms.length} termes · ${lex.title}`;
 
-  // Sort reset
-  document.getElementById("sort-icon").textContent = "↓";
-  document.getElementById("sort-label").textContent = "A → Z";
-
-  // Search reset
-  document.getElementById("search").value = "";
+  document.getElementById("sort-icon").textContent  = sortAZ ? "↓" : "↑";
+  document.getElementById("sort-label").textContent = sortAZ ? "A → Z" : "Z → A";
+  document.getElementById("search").value = st.q || "";
+  syncClear(document.getElementById("search"));
 
   buildBreadcrumb(id);
   buildCatTabs(id);
   renderGrid();
+  restoreScroll(id);
+  restoreModal();
+}
+
+// ── ARBRE DES LEXIQUES ────────────────────────────────────────────────────────
+
+function renderIndex() {
+  document.body.classList.add("page-lexiques");
+  document.getElementById("breadcrumb").classList.remove("visible");
+  document.title = "Lexique — Tous les lexiques";
+
+  const ids       = Object.keys(LEXIQUES);
+  const allTerms  = ids.reduce((n, k) => n + LEXIQUES[k].terms().filter(t => !t.ref).length, 0);
+  const allCats   = new Set(ids.flatMap(k => LEXIQUES[k].cats())).size;
+
+  const header = document.getElementById("header");
+  header.className = "";
+  document.getElementById("header-eyebrow").textContent = "Index · 2026";
+  document.getElementById("header-title").innerHTML     = `Tous les <em>lexiques</em>`;
+  document.getElementById("header-sub").textContent     = SHOW_TREE
+    ? "L'arborescence complète, du plus général au plus spécialisé. Chaque lexique s'ouvre d'un clic."
+    : "Un mot, une définition, un exemple : la recherche couvre les seize lexiques d'un coup.";
+  document.getElementById("tree-page").classList.toggle("no-tree", !SHOW_TREE);
+  document.getElementById("stat-terms").textContent     = allTerms;
+  document.getElementById("stat-cats").textContent      = allCats;
+  document.getElementById("stat-subs").textContent      = ids.length;
+  document.getElementById("stat-subs-label").textContent = "lexiques";
+  document.getElementById("stat-sub-wrap").style.display = "";
+
+  document.getElementById("footer-label").textContent = "Tous les lexiques";
+  document.getElementById("footer-count").textContent = `${allTerms} termes · ${ids.length} lexiques`;
+
+  // Parcours en profondeur depuis les racines, dans l'ordre de déclaration
+  const rows = [];
+  function walk(parent, depth) {
+    ids.filter(k => LEXIQUES[k].parent === parent)
+       .forEach(k => { rows.push({ id: k, depth }); walk(k, depth + 1); });
+  }
+  walk(null, 0);
+
+  document.getElementById("tree-list").innerHTML = rows.map((r, i) => {
+    const lex = LEXIQUES[r.id];
+    return `<a class="tree-row" data-depth="${r.depth}" href="#${r.id}" style="animation-delay:${Math.min(i * 40, 400)}ms">
+      ${r.depth ? `<span class="tree-branch">└</span>` : ""}
+      <div class="tree-body">
+        <div class="tree-title">${lexIcon(r.id)}${esc(lex.title)}</div>
+        <div class="tree-sub">${esc(lex.subtitle)}</div>
+      </div>
+      <span class="tree-meta"><b>${lex.terms().length}</b> termes · <b>${lex.cats().length}</b> catégories</span>
+      <span class="tree-arrow">↗</span>
+    </a>`;
+  }).join("");
+
+  if (STATE.gq && !document.getElementById("gsearch").value) document.getElementById("gsearch").value = STATE.gq;
+  syncClear(document.getElementById("gsearch"));
+  renderSuggestions();
+  renderGlobal();
+  if (!SHOW_TREE) document.getElementById("gsearch").focus();
+  restoreScroll(INDEX_ROUTE);
+  restoreModal();
+}
+
+// ── RECHERCHE GLOBALE ─────────────────────────────────────────────────────────
+
+function renderGlobal() {
+  const page = document.getElementById("tree-page");
+  const q    = fold(document.getElementById("gsearch").value).trim();
+  if (STATE.gq !== document.getElementById("gsearch").value) { STATE.gq = document.getElementById("gsearch").value; saveState(); }
+
+  if (!q) {
+    page.classList.remove("searching");
+    return;
+  }
+  page.classList.add("searching");
+
+  const seen = new Map(); // clé concept → carte
+  for (const lexId of Object.keys(LEXIQUES)) {
+    for (const raw of LEXIQUES[lexId].terms()) {
+      const t = resolveTerm(raw, lexId);
+      if (!matches(t, q)) continue;
+      const key = t.homeId + "/" + slugify(t.homeName);
+      if (seen.has(key)) continue;
+      // la carte affichée est celle du lexique de référence ; les autres lexiques sont listés dessous
+      const home = t.ref ? resolveTerm(LEXIQUES[t.homeId].terms().find(x => slugify(x.name) === slugify(t.homeName)), t.homeId) : t;
+      const also = conceptOccurrences(t.homeId, t.homeName).filter(o => o.lexId !== t.homeId);
+      seen.set(key, { t: home, lexId: t.homeId, also });
+    }
+  }
+  const hits = [...seen.values()];
+  hits.sort((a, b) => a.t.name.localeCompare(b.t.name, "fr"));
+
+  const nbLex = new Set(hits.map(h => h.lexId)).size;
+  document.getElementById("gcount").textContent =
+    `${hits.length} terme${hits.length !== 1 ? "s" : ""} dans ${nbLex} lexique${nbLex !== 1 ? "s" : ""}`;
+
+  const grid = document.getElementById("gresults");
+  if (!hits.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-big">∅</div>Aucun terme ne correspond à cette recherche.</div>`;
+    return;
+  }
+
+  grid.innerHTML = hits.map((h, i) => globalCard(h, i)).join("");
+}
+
+// Carte d'un terme hors de son lexique (résultat global, suggestion)
+function globalCard({ t, lexId, also = [] }, i) {
+  const col   = CAT_COLORS[t.cat] || "#888";
+  const bg    = col + "18";
+  const delay = Math.min(i * 18, 300);
+  const slug  = slugify(t.name);
+  const alsoTxt = also.length
+    ? `<span class="ref-pill">aussi dans ${also.map(o => `<b>${esc(LEXIQUES[o.lexId].title)}</b>${o.name !== t.name ? ` (« ${esc(o.name)} »)` : ""}`).join(", ")}</span>`
+    : "";
+  return `<div class="card" onclick="openCard('${lexId}','${slug}')" style="animation-delay:${delay}ms">
+    <span class="lex-pill">${lexIcon(lexId)}${esc(LEXIQUES[lexId].title)}</span>
+    <div class="card-top">
+      <span class="term-name">${esc(t.name)}</span>
+      <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${esc(CAT_LABELS[t.cat])}</span>
+    </div>
+    <div class="term-def">${esc(t.def)}</div>
+    ${t.en && t.en !== t.name ? `<div class="term-en">${esc(t.en)}</div>` : ""}
+    ${alsoTxt}
+  </div>`;
+}
+
+// ── SUGGESTIONS ───────────────────────────────────────────────────────────────
+// Six concepts tirés au sort (jamais un renvoi ni une carte-lien), un lexique au plus par carte.
+
+const SUGGEST_COUNT = 6;
+
+function renderSuggestions() {
+  const pool = [];
+  for (const lexId of Object.keys(LEXIQUES))
+    for (const t of LEXIQUES[lexId].terms())
+      if (!t.ref && !t.subLexique) pool.push({ t: resolveTerm(t, lexId), lexId });
+  // mélange de Fisher-Yates, puis on évite deux cartes du même lexique tant que c'est possible
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const picked = [], used = new Set();
+  for (const p of pool) { if (picked.length >= SUGGEST_COUNT) break; if (used.has(p.lexId)) continue; used.add(p.lexId); picked.push(p); }
+  for (const p of pool) { if (picked.length >= SUGGEST_COUNT) break; if (!picked.includes(p)) picked.push(p); }
+  document.getElementById("gsuggest-grid").innerHTML = picked.map((h, i) => globalCard(h, i)).join("");
 }
 
 // ── CAT TABS ──────────────────────────────────────────────────────────────────
@@ -641,6 +1373,7 @@ function buildCatTabs(id) {
 
 function setCat(id) {
   activeCat = id;
+  setLexState(currentId, { cat: id });
   buildCatTabs(currentId);
   renderGrid();
 }
@@ -655,16 +1388,85 @@ function esc(str) {
     .replace(/"/g, "&quot;");
 }
 
+// Forme de comparaison pour la recherche : minuscules, sans accents ni ligatures, apostrophes et espaces unifiés
+function fold(str) {
+  return String(str || "").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/œ/g, "oe").replace(/æ/g, "ae")
+    .replace(/[’‘`´]/g, "'").replace(/\s+/g, " ");
+}
+
+function matches(t, q) {
+  return fold(t.name).includes(q)
+    || fold(t.refName).includes(q)
+    || fold(t.def).includes(q)
+    || fold(t.ex).includes(q)
+    || fold(t.etymo).includes(q)
+    || fold(t.en).includes(q);
+}
+
+function slugify(name) {
+  return name.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function buildLinker(terms, lexId) {
+  // Les liens mènent aux termes de `lexId` : sur place si c'est la page affichée, sinon par navigation
+  const local = lexId === currentId && !document.body.classList.contains("page-lexiques");
+  // Build map slug → name for all terms in current lexique
+  const entries = terms.map(t => ({ name: t.name, slug: slugify(t.name) }));
+  // Sort longest-first so multi-word terms match before substrings
+  entries.sort((a, b) => b.name.length - a.name.length);
+
+  // Build a single alternation regex from all term names (escaped)
+  const pattern = entries
+    .map(e => e.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+  const re = new RegExp(`\\b(${pattern})\\b`, "gi");
+
+  return function linkify(text, skipName) {
+    const skipSlug = skipName ? slugify(skipName) : null;
+    // Work on escaped text so we don't double-escape
+    const escaped = esc(text);
+    return escaped.replace(re, (match) => {
+      const slug = slugify(match);
+      if (slug === skipSlug) return match; // don't link a term to itself
+      const go = local ? `scrollToTerm(event,'${slug}')` : `event.stopPropagation(); closeModal(); openTerm('${lexId}','${slug}')`;
+      return `<span class="def-link" data-lex="${lexId}" data-slug="${slug}" onclick="${go}" tabindex="0" role="link">${match}</span>`;
+    });
+  };
+}
+
+function scrollToTerm(event, slug) {
+  if (event.preventDefault)  event.preventDefault();
+  if (event.stopPropagation) event.stopPropagation();
+  closeModal();
+  // Clear filters so the target card is visible
+  activeCat = "all";
+  document.getElementById("search").value = "";
+  syncClear(document.getElementById("search"));
+  buildCatTabs(currentId);
+  renderGrid();
+
+  requestAnimationFrame(() => {
+    const card = document.getElementById("card-" + slug);
+    if (!card) return;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("highlight");
+    card.addEventListener("animationend", () => card.classList.remove("highlight"), { once: true });
+  });
+}
+
 function renderGrid() {
-  const q      = document.getElementById("search").value.toLowerCase().trim();
-  const terms  = LEXIQUES[currentId].terms();
+  const q      = fold(document.getElementById("search").value).trim();
+  if (lexState(currentId).q !== document.getElementById("search").value) setLexState(currentId, { q: document.getElementById("search").value });
+  const terms  = LEXIQUES[currentId].terms().map(t => resolveTerm(t, currentId));
 
   let filtered = terms.filter(t => {
     const mc = activeCat === "all" || t.cat === activeCat;
-    const mq = !q
-      || t.name.toLowerCase().includes(q)
-      || t.def.toLowerCase().includes(q)
-      || (t.en || "").toLowerCase().includes(q);
+    const mq = !q || matches(t, q);
     return mc && mq;
   });
 
@@ -683,31 +1485,149 @@ function renderGrid() {
     return;
   }
 
+  const linkify = buildLinker(LEXIQUES[currentId].terms(), currentId);
+  const linkers = {}; // un linker par lexique de référence rencontré
+  const linkFor = t => t.ref ? (linkers[t.homeId] ||= buildLinker(LEXIQUES[t.homeId].terms(), t.homeId)) : linkify;
+
   grid.innerHTML = filtered.map((t, i) => {
     const col    = CAT_COLORS[t.cat] || "#888";
     const bg     = col + "18";
     const delay  = Math.min(i * 18, 300);
     const isLink = !!t.subLexique;
-    const tag    = isLink ? "a" : "div";
-    const href   = isLink ? ` href="#${t.subLexique}"` : "";
+    const slug   = slugify(t.name);
 
-    return `<${tag} class="card"${href} style="animation-delay:${delay}ms">
+    return `<div class="card${isLink ? " sub" : ""}" id="card-${slug}" onclick="openCard('${currentId}','${slug}')" style="animation-delay:${delay}ms">
       <div class="card-top">
         <span class="term-name">${esc(t.name)}</span>
         <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${esc(CAT_LABELS[t.cat])}</span>
       </div>
-      <div class="term-def">${esc(t.def)}</div>
-      ${t.ex   ? `<div class="term-ex">${esc(t.ex)}</div>` : ""}
+      <div class="term-def">${linkFor(t)(t.def, t.homeName)}</div>
       ${t.en && t.en !== t.name ? `<div class="term-en">${esc(t.en)}</div>` : ""}
+      ${refPill(t)}
       ${isLink  ? `<div class="sub-lexique-hint">↗ Ouvrir le lexique ${esc(t.name)}</div>` : ""}
-    </${tag}>`;
+    </div>`;
   }).join("");
+}
+
+// ── FENÊTRE D'UNE CARTE ───────────────────────────────────────────────────────
+
+function openCard(lexId, slug) {
+  const lex = LEXIQUES[lexId];
+  const raw = lex.terms().find(x => slugify(x.name) === slug);
+  if (!raw) return;
+  const t   = resolveTerm(raw, lexId);
+
+  const col      = CAT_COLORS[t.cat] || "#888";
+  const bg       = col + "18";
+  const linkify  = buildLinker(LEXIQUES[t.homeId].terms(), t.homeId);
+  const elsewhere = lexId !== currentId || document.body.classList.contains("page-lexiques");
+
+  const actions = [];
+  const link = location.href.split("#")[0] + "#" + lexId + "/" + slug;
+  actions.push(`<button class="modal-btn" onclick="copyLink(this, '${link}')">Copier le lien</button>`);
+  if (t.subLexique) actions.push(`<a class="modal-btn" href="#${t.subLexique}" onclick="closeModal()">↗ Ouvrir le lexique ${esc(t.name)}</a>`);
+  const lexPill = elsewhere
+    ? `<span class="lex-pill link" data-tip="Voir le lexique ${esc(lex.title)}" onclick="closeModal(); openTerm('${lexId}','${slug}')">${lexIcon(lexId)}${esc(lex.title)}</span>`
+    : `<span class="lex-pill">${lexIcon(lexId)}${esc(lex.title)}</span>`;
+  const others = conceptOccurrences(t.homeId, t.homeName).filter(o => o.lexId !== lexId && o.lexId !== t.homeId);
+  others.forEach(o => actions.push(`<button class="modal-btn" onclick="closeModal(); openTerm('${o.lexId}','${slugify(o.name)}')">Aussi dans ${esc(LEXIQUES[o.lexId].title)}</button>`));
+
+  document.getElementById("modal-box").innerHTML = `
+    <button class="modal-close" onclick="closeModal()" aria-label="Fermer">×</button>
+    ${lexPill}
+    <div class="modal-title">${esc(t.name)}</div>
+    <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${esc(CAT_LABELS[t.cat])}</span>
+    <div class="term-def">${linkify(t.def, t.homeName)}</div>
+    ${refPill(t, true)}
+    ${t.etymo ? `<div class="term-etymo">${esc(t.etymo)}</div>` : ""}
+    ${t.ex    ? `<div class="term-ex">${esc(t.ex)}</div>` : ""}
+    ${t.en && t.en !== t.name ? `<div class="term-en">${esc(t.en)}</div>` : ""}
+    ${actions.length ? `<div class="modal-actions">${actions.join("")}</div>` : ""}`;
+
+  document.getElementById("modal").classList.add("open");
+  document.body.classList.add("modal-open");
+  document.getElementById("modal-box").scrollTop = 0;
+  setModalState({ route: getRoute(), lexId, slug });
+  if (lexId === getRoute()) setTermInUrl(slug);
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+  document.body.classList.remove("modal-open");
+  if (STATE.modal) setModalState(null);
+  if (location.hash.includes("/")) setTermInUrl(null);
+}
+
+function copyLink(btn, link) {
+  const done = () => { const t = btn.textContent; btn.textContent = "Lien copié"; setTimeout(() => btn.textContent = t, 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(done, () => prompt("Copier le lien :", link));
+  else prompt("Copier le lien :", link);
+}
+
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+window.addEventListener("hashchange", () => { if (!parseHash().slug) closeModal(); }, true);
+
+// ── INFOBULLE DE DÉFINITION ───────────────────────────────────────────────────
+// Survol d'un lien de définition : le terme visé et sa définition, sans quitter la carte.
+
+const tipEl = document.getElementById("tip");
+let tipTimer = null;
+
+function showTip(link) {
+  const lexId = link.dataset.lex, slug = link.dataset.slug;
+  const raw = LEXIQUES[lexId]?.terms().find(x => slugify(x.name) === slug);
+  if (!raw) return;
+  const t = resolveTerm(raw, lexId);
+  tipEl.innerHTML = `<div class="tip-def">${esc(t.def)}</div>`;
+  const r = link.getBoundingClientRect();
+  tipEl.style.left = "0px"; tipEl.style.top = "0px"; tipEl.classList.add("on");
+  const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let x = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
+  let y = r.bottom + 8;
+  if (y + h > window.innerHeight - 8) y = r.top - h - 8;
+  tipEl.style.left = x + "px"; tipEl.style.top = y + "px";
+}
+
+function hideTip() { clearTimeout(tipTimer); tipEl.classList.remove("on"); }
+
+function showTextTip(el) {
+  tipEl.innerHTML = `<div class="tip-hint">${esc(el.dataset.tip)}</div>`;
+  const r = el.getBoundingClientRect();
+  tipEl.style.left = "0px"; tipEl.style.top = "0px"; tipEl.classList.add("on");
+  const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let x = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
+  let y = r.bottom + 6;
+  if (y + h > window.innerHeight - 8) y = r.top - h - 6;
+  tipEl.style.left = x + "px"; tipEl.style.top = y + "px";
+}
+
+document.addEventListener("mouseover", e => {
+  const link = e.target.closest(".def-link");
+  if (!link) return;
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => showTip(link), 180);
+});
+document.addEventListener("mouseout", e => { if (e.target.closest(".def-link")) hideTip(); });
+document.addEventListener("click", hideTip, true);
+document.addEventListener("scroll", hideTip, true);
+
+// ── EFFACER LA RECHERCHE ──────────────────────────────────────────────────────
+
+function syncClear(input) { input.parentElement.classList.toggle("filled", input.value.length > 0); }
+
+function clearSearch(id) {
+  const input = document.getElementById(id);
+  input.value = "";
+  syncClear(input);
+  if (id === "gsearch") renderGlobal(); else renderGrid();
+  input.focus();
 }
 
 // ── SORT ──────────────────────────────────────────────────────────────────────
 
 function toggleSort() {
   sortAZ = !sortAZ;
+  setLexState(currentId, { sort: sortAZ ? "az" : "za" });
   document.getElementById("sort-icon").textContent = sortAZ ? "↓" : "↑";
   document.getElementById("sort-label").textContent = sortAZ ? "A → Z" : "Z → A";
   renderGrid();
@@ -724,11 +1644,11 @@ function toggleTheme() {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 
 (function init() {
-  if (localStorage.getItem("theme") === "light") {
+  if (localStorage.getItem("theme") !== "dark") {
     document.documentElement.classList.add("light");
     document.getElementById("theme-btn").textContent = "☽";
   }
-  renderPage(getRoute());
+  goToHash();
 })();
 </script>
 </body>
