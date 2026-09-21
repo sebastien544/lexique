@@ -1506,8 +1506,20 @@ function normAnswer(str) {
   return fold(str).replace(/\s*\([^)]*\)\s*/g, " ").replace(/-/g, " ").replace(/\s+/g, " ").trim();
 }
 
+// Réponses acceptées : le nom entier, chaque variante d'un nom composé (« FTP / SFTP », « DRY, KISS, YAGNI »,
+// « CSG et CRDS »), le contenu des parenthèses (« API simulée (mock) »), et pour un code HTTP le numéro
+// seul ou le libellé seul (« 401 Unauthorized »)
 function reviewAnswers(t) {
-  return [...new Set([t.name, t.refName, t.homeName, t.en].filter(Boolean).map(normAnswer))];
+  const out = new Set();
+  for (const n of [t.name, t.refName, t.homeName, t.en].filter(Boolean)) {
+    out.add(normAnswer(n));
+    for (const m of n.matchAll(/\(([^)]*)\)/g)) out.add(normAnswer(m[1]));
+    for (const part of n.replace(/\([^)]*\)/g, "").split(/\s*(?:\/|,|\bet\b)\s*/)) if (part.trim().length > 1) out.add(normAnswer(part));
+    const code = n.match(/^(\d{3})\s+(.+)$/);
+    if (code) { out.add(code[1]); out.add(normAnswer(code[2])); }
+  }
+  out.delete("");
+  return [...out];
 }
 
 // Cartes à réviser : un lexique (et sa catégorie filtrée le cas échéant) ou tous, sans renvois ni cartes-liens
@@ -1524,7 +1536,13 @@ function reviewPool(lexId) {
   return pool;
 }
 
-// Définition avec le terme masqué (et ses mots de 5 lettres et plus), et la même avec le terme surligné
+// Radical approximatif d'un mot (sans accents, suffixes courants ôtés) : routage → rout, routeur → rout
+function stem(w) {
+  return fold(w).replace(/(ation|ement|ique|isme|iste|able|ités|ité|euse|eur|age|ent|ant|ier|ire|er|ées|ée|és|é|es|e|s)$/, "");
+}
+
+// Définition avec le terme masqué — le nom entier, ses mots de 5 lettres et plus, et les mots de la même
+// famille (« routeur » pour Routage) — et la même avec les mêmes mots surlignés
 function maskDef(t) {
   const words = new Set();
   for (const n of [t.name, t.refName, t.homeName, t.en].filter(Boolean)) {
@@ -1534,10 +1552,19 @@ function maskDef(t) {
   const alt = [...words].filter(Boolean).sort((a, b) => b.length - a.length)
     .map(w => esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
   const re = new RegExp(`(?<![\\p{L}\\p{N}])(${alt})(?:s|x|es)?(?![\\p{L}\\p{N}])`, "giu");
-  const text = esc(t.def);
-  const catLeaks = re.test(esc(CAT_LABELS[t.cat] || "")); // catégorie « Mémoire & Oubli » pour le terme Mémoire
+  const stems = [...words].flatMap(n => n.split(/[\s'’\-()/]+/)).filter(w => w.length >= 5).map(stem).filter(x => x.length >= 4);
+  const sameFamily = w => { const x = stem(w); return x.length >= 4 && stems.some(y => x.startsWith(y) || y.startsWith(x)); };
+
+  // 1. le nom exact, 2. les mots de la même famille — sur des repères pour ne pas retoucher le HTML inséré
+  const MARK = String.fromCharCode(0xE000), markRe = new RegExp(MARK, "g");
+  const hits = [];
+  const marked = esc(t.def)
+    .replace(re, m => { hits.push(m); return MARK; })
+    .replace(/\p{L}{4,}/gu, m => sameFamily(m) ? (hits.push(m), MARK) : m);
+  const render = f => { let i = 0; return marked.replace(markRe, () => f(hits[i++])); };
+  const catLeaks = re.test(esc(CAT_LABELS[t.cat] || "")) || (CAT_LABELS[t.cat] || "").split(/\W+/).some(sameFamily);
   re.lastIndex = 0;
-  return { masked: text.replace(re, `<span class="blank"></span>`), shown: text.replace(re, m => `<mark class="hit">${m}</mark>`), catLeaks };
+  return { masked: render(() => `<span class="blank"></span>`), shown: render(m => `<mark class="hit">${m}</mark>`), catLeaks };
 }
 
 function renderReview(lexId) {
