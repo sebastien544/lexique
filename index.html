@@ -519,6 +519,8 @@
   .review-form .search-input { padding-left: 14px; }
   .review-form .search-input.wrong { border-color: #e07070; animation: shake .3s; }
   .review-form .modal-btn { white-space: nowrap; }
+  .modal-btn.ko { color: #e07070; background: rgba(224,112,112,0.12); }
+  .modal-btn.ko:hover { border-color: #e07070; }
   .review-feedback { margin-top: 1rem; font-size: 14px; color: var(--muted); min-height: 1.4em; }
   .review-feedback.ok { color: var(--accent); }
   .review-feedback.ko { color: #e07070; }
@@ -972,6 +974,14 @@ const LEXIQUES = {
     cats:     () => CATS_DROIT,
     parent:   "connaissance",
   },
+  francais: {
+    title:    "Langue française",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Comprendre et bien écrire le français : histoire de la langue, grammaire, conjugaison, orthographe et ponctuation, vocabulaire, figures de style, rhétorique, genres littéraires, oral, bon usage.",
+    terms:    () => terms_francais,
+    cats:     () => CATS_FRANCAIS,
+    parent:   "connaissance",
+  },
   cuisine: {
     title:    "Cuisine & Gastronomie",
     eyebrow:  "Sous-lexique · Connaissance",
@@ -1060,6 +1070,14 @@ const LEXIQUES = {
     cats:     () => CATS_INFO,
     parent:   "numerique",
   },
+  electronique: {
+    title:    "Matériel & Électronique",
+    eyebrow:  "Sous-lexique · Informatique",
+    subtitle: "Ce qu'il y a sous le capot : électricité, composants, circuits, signaux, processeurs, mémoires, anatomie d'un PC, connectique, cartes de bricolage et objets connectés, périphériques.",
+    terms:    () => terms_electronique,
+    cats:     () => CATS_ELECTRO,
+    parent:   "informatique",
+  },
   api: {
     title:    "API",
     eyebrow:  "Sous-lexique · Informatique",
@@ -1147,6 +1165,7 @@ const LEXIQUES = {
 
 const LEX_ICONS = {
   connaissance: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  francais:     '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
   cuisine:      '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
   shs:          '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
   economie:     '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/>',
@@ -1157,6 +1176,7 @@ const LEX_ICONS = {
   sciences:     '<path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5l-5.1-10.1a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
   medecine:     '<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/><path d="M3.2 12h4.3l2-3 2.5 6 2-4 1.2 1h3.6"/>',
   numerique:    '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
+  electronique: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M11 9h4a2 2 0 0 0 2-2V3"/><circle cx="9" cy="9" r="2"/><path d="M7 21v-4a2 2 0 0 1 2-2h4"/><circle cx="15" cy="15" r="2"/>',
   informatique: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>',
   api:          '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
   serveur:      '<rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/>',
@@ -1595,14 +1615,14 @@ function renderReview(lexId) {
   document.getElementById("header-sub").textContent     = (lex
     ? `Les cartes du lexique ${lex.title}${cat ? `, catégorie ${CAT_LABELS[cat]}` : ""}.`
     : "Les cartes de tous les lexiques.")
-    + " Retrouve le terme à partir de sa définition. Les cartes ratées reviennent une fois sur deux.";
+    + " Retrouve le terme, puis dis si la carte est bonne ou à revoir : les cartes à revoir reviennent une fois sur deux.";
 
   REV = { lexId: lexId || null, pool: reviewPool(lexId), asked: new Set(), ok: 0, ko: 0, cur: null, tries: 0, done: false };
   nextReviewCard();
 }
 
 function reviewScore() {
-  const R = REV, n = R.ok + R.ko, total = R.pool.length;
+  const R = REV, n = R.ok + R.ko, total = R.pool.length; // n = cartes tranchées
   const toReview = R.pool.filter(p => missedKeys().includes(p.key)).length;
   return `<div class="review-score">
     <span><b>${n}</b> / ${total} carte${total > 1 ? "s" : ""}</span>
@@ -1630,13 +1650,14 @@ function nextReviewCard() {
   drawReview();
 }
 
+
 function drawReview(result) {
   const R = REV, { t, lexId } = R.cur;
   const col = CAT_COLORS[t.cat] || "#888", bg = col + "18";
   const { masked, shown, catLeaks } = maskDef(t);
   const n = R.tries;
   let fb = "";
-  if (R.done && result === "ok") fb = n ? `<div class="review-feedback ok">✓ Exact, après ${n} essai${n > 1 ? "s" : ""} raté${n > 1 ? "s" : ""} — la carte reste à revoir</div>` : `<div class="review-feedback ok">✓ Exact</div>`;
+  if (R.done && result === "ok") fb = n ? `<div class="review-feedback ok">✓ Exact, après ${n} essai${n > 1 ? "s" : ""} raté${n > 1 ? "s" : ""}</div>` : `<div class="review-feedback ok">✓ Exact</div>`;
   else if (R.done) fb = `<div class="review-feedback ko">✗ C'était « ${esc(t.name)} »</div>`;
   else if (result === "wrong") fb = `<div class="review-feedback ko">✗ Non — réessaie, ou révèle la réponse</div>`;
   else fb = `<div class="review-feedback"></div>`;
@@ -1653,13 +1674,23 @@ function drawReview(result) {
     </form>`}
     ${fb}
     <div class="review-btns">${R.done
-      ? `<button class="modal-btn" id="review-next" onclick="nextReviewCard()">Suivante →</button>
+      ? `<button class="modal-btn" id="review-good" onclick="judgeReview(true)">✓ Bon</button>
+         <button class="modal-btn ko" id="review-again" onclick="judgeReview(false)">↻ À revoir</button>
          <button class="sort-btn" onclick="openCard('${lexId}','${slugify(t.name)}')">Ouvrir la carte</button>`
       : `<button class="sort-btn" onclick="revealReview()">Je sèche, révèle la réponse</button>`}
     </div>
   </div>`;
+  // Entrée valide la réponse, puis prend le choix naturel : Bon si exact du premier coup, À revoir sinon
   const inp = document.getElementById("review-input");
-  if (inp) inp.focus(); else document.getElementById("review-next").focus();
+  if (inp) inp.focus(); else document.getElementById(result === "ok" && n === 0 ? "review-good" : "review-again").focus();
+}
+
+// C'est l'utilisateur qui tranche : la carte est bonne ou à revoir
+function judgeReview(good) {
+  const R = REV;
+  if (good) R.ok++; else R.ko++;
+  markMissed(R.cur.key, !good);
+  nextReviewCard();
 }
 
 function checkReview(e) {
@@ -1668,7 +1699,6 @@ function checkReview(e) {
   if (!val) return;
   if (reviewAnswers(R.cur.t).includes(val)) {
     R.done = true;
-    if (R.tries === 0) { R.ok++; markMissed(R.cur.key, false); } else { R.ko++; markMissed(R.cur.key, true); }
     drawReview("ok");
   } else {
     R.tries++;
@@ -1678,7 +1708,7 @@ function checkReview(e) {
 
 function revealReview() {
   const R = REV;
-  R.done = true; R.ko++; markMissed(R.cur.key, true);
+  R.done = true;
   drawReview("reveal");
 }
 
@@ -1830,7 +1860,8 @@ function buildLinker(terms, lexId) {
   const pattern = entries
     .map(e => e.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     .join("|");
-  const re = new RegExp(`\\b(${pattern})\\b`, "gi");
+  // frontières de mot Unicode : \b ignore les lettres accentuées (« débit » contiendrait « bit »)
+  const re = new RegExp(`(?<![\\p{L}\\p{N}])(${pattern})(?![\\p{L}\\p{N}])`, "giu");
 
   return function linkify(text, skipName) {
     const skipSlug = skipName ? slugify(skipName) : null;
