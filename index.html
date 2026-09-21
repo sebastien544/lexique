@@ -470,11 +470,8 @@
 
   /* ── VUE NODALE ── */
   /* bouton d'accès à l'arbre, à gauche du bouton de thème, seulement sur l'accueil */
-  .graph-btn {
-    position: fixed;
-    top: 1.25rem;
-    right: 4.6rem;
-    z-index: 100;
+  .top-btns { position: fixed; top: 1.25rem; right: 4.6rem; z-index: 100; display: flex; gap: 8px; }
+  .graph-btn, .review-btn {
     display: none;
     align-items: center;
     justify-content: center;
@@ -487,9 +484,11 @@
     text-decoration: none;
     transition: all .2s;
   }
-  .graph-btn:hover { border-color: var(--border-hover); color: var(--accent); }
-  .graph-btn .lx-icon { width: 15px; height: 15px; stroke-width: 1.75; }
+  .graph-btn:hover, .review-btn:hover { border-color: var(--border-hover); color: var(--accent); }
+  .graph-btn .lx-icon, .review-btn .lx-icon { width: 15px; height: 15px; stroke-width: 1.75; }
   body.page-lexiques .graph-btn { display: flex; }
+  .review-btn { display: flex; }
+  body.page-graph .review-btn, body.page-review .review-btn { display: none; }
 
   #graph-page { max-width: 1100px; margin: 0 auto; padding: 0 2rem 4rem; display: none; opacity: 0; animation: fadeUp .5s .3s ease forwards; overflow-x: auto; }
   body.page-graph #graph-page { display: block; }
@@ -497,6 +496,35 @@
   body.page-graph header { text-align: center; padding-bottom: 1rem; }
   body.page-graph .header-sub { margin-left: auto; margin-right: auto; }
   body.page-graph .stats-row { display: none; }
+
+  /* ── RÉVISION (texte à trous) ── */
+  #review-page { max-width: 680px; margin: 0 auto; padding: 0 2rem 4rem; display: none; opacity: 0; animation: fadeUp .5s .3s ease forwards; }
+  body.page-review #review-page { display: block; }
+  body.page-review .controls, body.page-review .main, body.page-review footer, body.page-review .stats-row { display: none; }
+  body.page-review header { text-align: center; padding-bottom: 1rem; }
+  body.page-review .header-sub { margin-left: auto; margin-right: auto; }
+  .review-score { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.5rem; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: .05em; color: var(--muted); margin-bottom: 1.5rem; }
+  .review-score b { color: var(--text); font-weight: 500; }
+  .review-score .ok b { color: var(--accent); }
+  .review-score .ko b { color: #e07070; }
+  .review-card { background: var(--surface); border: 0.5px solid var(--border-hover); border-radius: var(--radius-lg); padding: 2rem 2.25rem; animation: cardIn .25s ease; }
+  .review-card .lex-pill { margin-bottom: 12px; }
+  .review-title { font-family: 'DM Serif Display', serif; font-size: 2rem; line-height: 1.15; margin-bottom: 10px; }
+  .review-card .badge { font-size: 11px; padding: 3px 11px; margin: 0 0 1.25rem; display: inline-block; }
+  .review-card .term-def { font-size: 16.5px; line-height: 1.75; color: var(--text); font-weight: 300; }
+  .blank { display: inline-block; width: 4.5em; height: .95em; border-bottom: 1.5px solid var(--accent); vertical-align: -3px; margin: 0 2px; }
+  .blank.big { width: 7em; height: 1em; border-bottom-width: 2px; vertical-align: -2px; }
+  .hit { background: var(--accent-dim); color: var(--accent); border-radius: 3px; padding: 0 3px; }
+  .review-form { display: flex; gap: 8px; margin-top: 1.5rem; }
+  .review-form .search-input { padding-left: 14px; }
+  .review-form .search-input.wrong { border-color: #e07070; animation: shake .3s; }
+  .review-form .modal-btn { white-space: nowrap; }
+  .review-feedback { margin-top: 1rem; font-size: 14px; color: var(--muted); min-height: 1.4em; }
+  .review-feedback.ok { color: var(--accent); }
+  .review-feedback.ko { color: #e07070; }
+  .review-btns { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; align-items: center; }
+  .review-end { text-align: center; color: var(--muted); padding: 2rem 0; line-height: 2.2; }
+  @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
   .graph { display: block; margin: 0 auto; font-family: 'DM Sans', sans-serif; }
   .graph .edge { fill: none; stroke: var(--border-hover); stroke-width: 1.5; }
@@ -823,7 +851,10 @@
     .term-ex { white-space: normal; word-break: break-word; }
     footer { padding: 1rem; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
     .theme-toggle { top: 0.75rem; right: 0.75rem; padding: 5px 11px; }
-    .graph-btn { top: 0.75rem; right: 3.6rem; }
+    .top-btns { top: 0.75rem; right: 3.6rem; }
+    #review-page { padding: 0 1rem 3rem; }
+    .review-card { padding: 1.5rem 1.25rem; }
+    .review-form { flex-direction: column; }
     .tree { padding-left: 1rem; padding-right: 1rem; }
     .tree-row { flex-wrap: wrap; padding: 12px; }
     .tree-row[data-depth="1"] { margin-left: 1rem; }
@@ -842,7 +873,10 @@
 </head>
 <body>
 
+<div class="top-btns">
+<a class="review-btn" id="review-btn" href="#revision" title="Réviser (texte à trous)" aria-label="Réviser"><svg class="lx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></a>
 <a class="graph-btn" href="#arbre" title="Arbre des lexiques" aria-label="Arbre des lexiques"><svg class="lx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg></a>
+</div>
 <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀</button>
 
 <nav class="breadcrumb" id="breadcrumb"></nav>
@@ -904,6 +938,7 @@
 </section>
 
 <section id="graph-page"></section>
+<section id="review-page"></section>
 
 <div class="modal-bg" id="modal" onclick="if (event.target === this) closeModal()">
   <div class="modal" role="dialog" aria-modal="true" id="modal-box"></div>
@@ -1173,12 +1208,14 @@ let sortAZ    = true;
 
 const INDEX_ROUTE = "lexiques";
 const GRAPH_ROUTE = "arbre";
+const REVIEW_ROUTE = "revision"; // #revision (tous les lexiques) ou #revision/<lexique>
 const SHOW_TREE   = false; // arbre des lexiques sur la page d'accueil (masqué pour le moment, la recherche est mise en avant)
 
 // L'adresse porte le lexique et, après une barre, le terme ouvert : #serveur/smtp
 function parseHash() {
   const [route, slug] = location.hash.slice(1).split("/");
   if (route === GRAPH_ROUTE) return { route: GRAPH_ROUTE, slug: null };
+  if (route === REVIEW_ROUTE) return { route: REVIEW_ROUTE, slug: null, rev: LEXIQUES[slug] ? slug : null };
   return { route: LEXIQUES[route] ? route : INDEX_ROUTE, slug: LEXIQUES[route] && slug ? decodeURIComponent(slug) : null };
 }
 
@@ -1221,13 +1258,14 @@ let pendingSlug = null; // terme à surligner après navigation depuis la recher
 let lastRoute = null;
 
 function goToHash() {
-  const { route, slug } = parseHash();
+  const { route, slug, rev } = parseHash();
   const target = pendingSlug || slug;
   pendingSlug = null;
-  if (route !== lastRoute) {
+  const pageKey = route === REVIEW_ROUTE ? route + "/" + (rev || "") : route;
+  if (pageKey !== lastRoute) {
     if (target && STATE.scroll) delete STATE.scroll[route]; // on va défiler jusqu'au terme, pas à l'ancienne position
-    renderPage(route);
-    lastRoute = route;
+    renderPage(route, rev);
+    lastRoute = pageKey;
     if (!target) window.scrollTo({ top: 0, behavior: "smooth" });
   }
   if (target) { scrollToTerm({}, target); openCard(route, target); }
@@ -1273,11 +1311,13 @@ function buildBreadcrumb(id) {
 
 // ── RENDER PAGE ───────────────────────────────────────────────────────────────
 
-function renderPage(id) {
-  document.body.classList.remove("page-graph");
+function renderPage(id, rev) {
+  document.body.classList.remove("page-graph", "page-review");
   if (id === INDEX_ROUTE) { renderIndex(); return; }
   if (id === GRAPH_ROUTE) { renderGraph(); return; }
+  if (id === REVIEW_ROUTE) { renderReview(rev); return; }
   document.body.classList.remove("page-lexiques");
+  document.getElementById("review-btn").href = "#" + REVIEW_ROUTE + "/" + id;
 
   const lex  = LEXIQUES[id];
   const st   = lexState(id);
@@ -1332,6 +1372,7 @@ function renderPage(id) {
 
 function renderIndex() {
   document.body.classList.add("page-lexiques");
+  document.getElementById("review-btn").href = "#" + REVIEW_ROUTE;
   document.getElementById("breadcrumb").classList.remove("visible");
   document.title = "Lexique — Tous les lexiques";
 
@@ -1441,6 +1482,168 @@ function renderGraph() {
 
   document.getElementById("graph-page").innerHTML =
     `<svg class="graph" viewBox="-2 -2 ${totalW + 4} ${totalH + 4}" width="${totalW}" height="${totalH}" style="max-width:100%;height:auto">${edges}${nodes}</svg>`;
+}
+
+// ── RÉVISION : TEXTE À TROUS ─────────────────────────────────────────────────
+// La définition s'affiche, le terme est masqué (dans le titre et partout où il
+// apparaît dans le texte) ; on tape le mot, Entrée valide. Sans fin : carte après
+// carte jusqu'à épuisement. Les cartes ratées sont mémorisées (STATE.missed) et
+// reviennent une carte sur deux dans les sessions suivantes, jusqu'à être trouvées
+// du premier coup.
+
+let REV = null; // session en cours
+
+function missedKeys() { return STATE.missed || []; }
+function markMissed(key, missed) {
+  const list = missedKeys().filter(k => k !== key);
+  if (missed) list.unshift(key);
+  STATE.missed = list.slice(0, 200);
+  saveState();
+}
+
+// Forme comparable d'une réponse : sans accents, sans parenthèses, tirets et espaces unifiés
+function normAnswer(str) {
+  return fold(str).replace(/\s*\([^)]*\)\s*/g, " ").replace(/-/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function reviewAnswers(t) {
+  return [...new Set([t.name, t.refName, t.homeName, t.en].filter(Boolean).map(normAnswer))];
+}
+
+// Cartes à réviser : un lexique (et sa catégorie filtrée le cas échéant) ou tous, sans renvois ni cartes-liens
+function reviewPool(lexId) {
+  const pool = [];
+  const push = (t, id) => pool.push({ t: resolveTerm(t, id), lexId: id, key: id + "/" + slugify(t.name) });
+  if (lexId) {
+    const lex = LEXIQUES[lexId], cat = lexState(lexId).cat;
+    const byCat = lex.cats().includes(cat);
+    for (const t of lex.terms()) if (!t.subLexique && (!byCat || t.cat === cat)) push(t, lexId);
+  } else {
+    for (const id of Object.keys(LEXIQUES)) for (const t of LEXIQUES[id].terms()) if (!t.ref && !t.subLexique) push(t, id);
+  }
+  return pool;
+}
+
+// Définition avec le terme masqué (et ses mots de 5 lettres et plus), et la même avec le terme surligné
+function maskDef(t) {
+  const words = new Set();
+  for (const n of [t.name, t.refName, t.homeName, t.en].filter(Boolean)) {
+    words.add(n.replace(/\s*\([^)]*\)\s*/g, " ").trim());
+    for (const w of n.split(/[\s'’\-()/]+/)) if (w.length >= 5) words.add(w);
+  }
+  const alt = [...words].filter(Boolean).sort((a, b) => b.length - a.length)
+    .map(w => esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const re = new RegExp(`(?<![\\p{L}\\p{N}])(${alt})(?:s|x|es)?(?![\\p{L}\\p{N}])`, "giu");
+  const text = esc(t.def);
+  const catLeaks = re.test(esc(CAT_LABELS[t.cat] || "")); // catégorie « Mémoire & Oubli » pour le terme Mémoire
+  re.lastIndex = 0;
+  return { masked: text.replace(re, `<span class="blank"></span>`), shown: text.replace(re, m => `<mark class="hit">${m}</mark>`), catLeaks };
+}
+
+function renderReview(lexId) {
+  document.body.classList.remove("page-lexiques");
+  document.body.classList.add("page-review");
+  const lex = lexId ? LEXIQUES[lexId] : null;
+  const cat = lex && lex.cats().includes(lexState(lexId).cat) ? lexState(lexId).cat : null;
+  document.title = "Lexique — Révision" + (lex ? " " + lex.title : "");
+
+  const bc = document.getElementById("breadcrumb");
+  bc.innerHTML = `<a href="#${INDEX_ROUTE}">← Tous les lexiques</a><span class="breadcrumb-sep">/</span>`
+    + (lex ? `<a href="#${lexId}">${lexIcon(lexId)}${esc(lex.title)}</a><span class="breadcrumb-sep">/</span>` : "")
+    + `<span class="breadcrumb-current">Révision</span>`;
+  bc.classList.add("visible");
+
+  document.getElementById("header").className = "sub";
+  document.getElementById("header-eyebrow").textContent = "Révision";
+  document.getElementById("header-title").innerHTML     = `Texte à <em>trous</em>`;
+  document.getElementById("header-sub").textContent     = (lex
+    ? `Les cartes du lexique ${lex.title}${cat ? `, catégorie ${CAT_LABELS[cat]}` : ""}.`
+    : "Les cartes de tous les lexiques.")
+    + " Retrouve le terme à partir de sa définition. Les cartes ratées reviennent une fois sur deux.";
+
+  REV = { lexId: lexId || null, pool: reviewPool(lexId), asked: new Set(), ok: 0, ko: 0, cur: null, tries: 0, done: false };
+  nextReviewCard();
+}
+
+function reviewScore() {
+  const R = REV, n = R.ok + R.ko, total = R.pool.length;
+  const toReview = R.pool.filter(p => missedKeys().includes(p.key)).length;
+  return `<div class="review-score">
+    <span><b>${n}</b> / ${total} carte${total > 1 ? "s" : ""}</span>
+    <span class="ok"><b>${R.ok}</b> juste${R.ok > 1 ? "s" : ""}</span>
+    <span class="ko"><b>${R.ko}</b> ratée${R.ko > 1 ? "s" : ""}</span>
+    ${toReview ? `<span><b>${toReview}</b> à revoir</span>` : ""}
+  </div>`;
+}
+
+function nextReviewCard() {
+  const R = REV;
+  const left = R.pool.filter(p => !R.asked.has(p.key));
+  if (!left.length) {
+    document.getElementById("review-page").innerHTML = reviewScore()
+      + `<div class="review-end">${R.pool.length ? "Toutes les cartes sont passées." : "Aucune carte à réviser ici."}<br>
+         <button class="modal-btn" onclick="renderReview(REV.lexId)">↻ Recommencer</button></div>`;
+    return;
+  }
+  // une carte sur deux vient des ratées, tant qu'il en reste
+  const prio = left.filter(p => missedKeys().includes(p.key));
+  const from = prio.length && (R.ok + R.ko) % 2 === 0 ? prio : left;
+  R.cur = from[Math.floor(Math.random() * from.length)];
+  R.asked.add(R.cur.key);
+  R.tries = 0; R.done = false;
+  drawReview();
+}
+
+function drawReview(result) {
+  const R = REV, { t, lexId } = R.cur;
+  const col = CAT_COLORS[t.cat] || "#888", bg = col + "18";
+  const { masked, shown, catLeaks } = maskDef(t);
+  const n = R.tries;
+  let fb = "";
+  if (R.done && result === "ok") fb = n ? `<div class="review-feedback ok">✓ Exact, après ${n} essai${n > 1 ? "s" : ""} raté${n > 1 ? "s" : ""} — la carte reste à revoir</div>` : `<div class="review-feedback ok">✓ Exact</div>`;
+  else if (R.done) fb = `<div class="review-feedback ko">✗ C'était « ${esc(t.name)} »</div>`;
+  else if (result === "wrong") fb = `<div class="review-feedback ko">✗ Non — réessaie, ou révèle la réponse</div>`;
+  else fb = `<div class="review-feedback"></div>`;
+
+  document.getElementById("review-page").innerHTML = reviewScore() + `
+  <div class="review-card${R.done ? " revealed" : ""}">
+    <span class="lex-pill">${lexIcon(lexId)}${esc(LEXIQUES[lexId].title)}</span>
+    <div class="review-title">${R.done ? esc(t.name) : `<span class="blank big"></span>`}</div>
+    ${catLeaks && !R.done ? "" : `<span class="badge" style="color:${col};background:${bg};border-color:${col}44">${esc(CAT_LABELS[t.cat])}</span>`}
+    <div class="term-def">${R.done ? shown : masked}</div>
+    ${R.done ? "" : `<form class="review-form" onsubmit="checkReview(event)">
+      <input id="review-input" class="search-input${result === "wrong" ? " wrong" : ""}" placeholder="Le terme…" autocomplete="off" spellcheck="false">
+      <button class="modal-btn" type="submit">Valider</button>
+    </form>`}
+    ${fb}
+    <div class="review-btns">${R.done
+      ? `<button class="modal-btn" id="review-next" onclick="nextReviewCard()">Suivante →</button>
+         <button class="sort-btn" onclick="openCard('${lexId}','${slugify(t.name)}')">Ouvrir la carte</button>`
+      : `<button class="sort-btn" onclick="revealReview()">Je sèche, révèle la réponse</button>`}
+    </div>
+  </div>`;
+  const inp = document.getElementById("review-input");
+  if (inp) inp.focus(); else document.getElementById("review-next").focus();
+}
+
+function checkReview(e) {
+  e.preventDefault();
+  const R = REV, val = normAnswer(document.getElementById("review-input").value);
+  if (!val) return;
+  if (reviewAnswers(R.cur.t).includes(val)) {
+    R.done = true;
+    if (R.tries === 0) { R.ok++; markMissed(R.cur.key, false); } else { R.ko++; markMissed(R.cur.key, true); }
+    drawReview("ok");
+  } else {
+    R.tries++;
+    drawReview("wrong");
+  }
+}
+
+function revealReview() {
+  const R = REV;
+  R.done = true; R.ko++; markMissed(R.cur.key, true);
+  drawReview("reveal");
 }
 
 // ── RECHERCHE GLOBALE ─────────────────────────────────────────────────────────
