@@ -122,6 +122,8 @@
     animation: fadeUp .6s .3s ease forwards;
   }
 
+  .header-sub:empty { display: none; }
+
   .stats-row {
     display: flex;
     gap: 2rem;
@@ -1469,7 +1471,7 @@ function renderIndex() {
   document.getElementById("header-title").innerHTML     = `Tous les <em>lexiques</em>`;
   document.getElementById("header-sub").textContent     = SHOW_TREE
     ? "L'arborescence complète, du plus général au plus spécialisé. Chaque lexique s'ouvre d'un clic."
-    : "Un mot, une définition, un exemple : la recherche couvre les vingt-deux lexiques d'un coup.";
+    : "";
   document.getElementById("tree-page").classList.toggle("no-tree", !SHOW_TREE);
   document.getElementById("stat-terms").textContent     = allTerms;
   document.getElementById("stat-cats").textContent      = allCats;
