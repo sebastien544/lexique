@@ -278,7 +278,9 @@
     padding: 1.1rem 1.2rem;
     cursor: pointer;
     transition: border-color .2s, background .2s, transform .15s;
-    animation: cardIn .35s ease both;
+    /* « backwards » et non « both » : avec « both », la valeur finale de transform
+       reste appliquée et écrase le retournement de la carte */
+    animation: cardIn .35s ease backwards;
     text-decoration: none;
     color: inherit;
     display: block;
@@ -291,6 +293,57 @@
   }
 
   .card.sub { border-color: rgba(200,240,96,0.2); }
+
+  /* ── RETOURNEMENT DE LA FICHE AGRANDIE ── */
+  /* les deux faces sont dans le flux : la fiche prend la hauteur de celle qui
+     est montrée, et l'échange se fait à mi-rotation, quand la fiche est de chant */
+  .modal.has-image { transition: transform .45s ease; }
+  .modal.flipped { transform: rotateY(180deg); }
+  .face-back { display: none; transform: rotateY(180deg); }
+  .modal.showing-back .face-front { display: none; }
+  .modal.showing-back .face-back { display: block; }
+
+  .face-back .lex-pill { margin-bottom: 14px; }
+  .face-back img {
+    display: block;
+    width: 100%;
+    max-height: 62vh;
+    object-fit: contain;
+    border-radius: var(--radius);
+    background: var(--surface2);
+  }
+  .face-back .img-credit {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--hint);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .flip-btn {
+    position: absolute;
+    top: 14px;
+    right: 54px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0.5px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .flip-btn:hover { color: var(--accent); border-color: var(--border-hover); }
+  .flip-btn .lx-icon { width: 14px; height: 14px; stroke-width: 1.8; }
+  /* la fiche retournée est en miroir : on bascule les boutons pour qu'ils
+     restent en haut à droite à l'écran, et on les remet à l'endroit */
+  .modal.flipped .modal-close,
+  .modal.flipped .flip-btn { transform: rotateY(180deg); }
+  .modal.flipped .modal-close { right: auto; left: 14px; }
+  .modal.flipped .flip-btn   { right: auto; left: 54px; }
 
   .card.sub:hover { border-color: var(--accent); }
 
@@ -638,6 +691,14 @@
   .tree.no-tree #gsearch { font-size: 18px; padding: 18px 18px 18px 50px; border-radius: var(--radius-lg); }
   .tree.no-tree .search-icon { left: 18px; font-size: 20px; }
 
+  .more-hint {
+    grid-column: 1 / -1;
+    padding: 1.25rem 0 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
   .gcount {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -926,7 +987,7 @@
 <section class="tree" id="tree-page">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="gsearch" class="search-input" placeholder="Rechercher dans tous les lexiques…" oninput="renderGlobal(); syncClear(this)" autocomplete="off" spellcheck="false">
+    <input type="text" id="gsearch" class="search-input" placeholder="Rechercher dans les lexiques" oninput="renderGlobal(); syncClear(this)" autocomplete="off" spellcheck="false">
     <button class="search-clear" type="button" aria-label="Effacer" title="Effacer" onclick="clearSearch('gsearch')">×</button>
   </div>
   <div class="gcount" id="gcount"></div>
@@ -963,7 +1024,7 @@ const LEXIQUES = {
   connaissance: {
     title:    "Connaissance",
     eyebrow:  "Référence · 2026",
-    subtitle: "Les concepts fondateurs de la connaissance humaine : épistémologie, apprentissage, mémoire, langage, raisonnement, disciplines du savoir et transmission.",
+    subtitle: "Les concepts fondateurs de la connaissance humaine : épistémologie, apprentissage, mémoire, langage, raisonnement, disciplines du savoir, transmission, information et sagesse.",
     terms:    () => terms_connaissance,
     cats:     () => CATS_CONNAISSANCE,
     parent:   null,
@@ -971,7 +1032,7 @@ const LEXIQUES = {
   droit: {
     title:    "Droit & Administration",
     eyebrow:  "Sous-lexique · Connaissance",
-    subtitle: "Le vocabulaire des démarches et du droit français : justice, contrats, entreprise et association, travail, impôts, administration, famille, logement, consommation.",
+    subtitle: "Le vocabulaire des démarches et du droit français : fondements, justice, contrats, entreprise et association, travail, impôts, administration, famille, logement, consommation.",
     terms:    () => terms_droit,
     cats:     () => CATS_DROIT,
     parent:   "connaissance",
@@ -982,6 +1043,14 @@ const LEXIQUES = {
     subtitle: "Comprendre sa maison et faire soi-même : structure, isolation, chauffage, électricité, plomberie, outillage, fixations, finitions, matériaux, menuiseries, projet et réglementation.",
     terms:    () => terms_habitat,
     cats:     () => CATS_HABITAT,
+    parent:   "connaissance",
+  },
+  auto: {
+    title:    "Automobile",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Comprendre sa voiture et ce qu'elle coûte : carrosserie, moteur, transmission, châssis et pneus, sécurité, électronique embarquée, électrique et hybride, entretien et pannes, conduite, papiers et assurance, histoire.",
+    terms:    () => terms_auto,
+    cats:     () => CATS_AUTOMOBILE,
     parent:   "connaissance",
   },
   francais: {
@@ -1003,7 +1072,7 @@ const LEXIQUES = {
   thailande: {
     title:    "Thaïlande",
     eyebrow:  "Sous-lexique · Connaissance",
-    subtitle: "Comprendre le pays avant d'y aller : géographie, histoire et monarchie, langue et écriture, bouddhisme, cuisine, codes sociaux, vie pratique du voyageur, économie et politique.",
+    subtitle: "De quoi le pays est fait : géographie, histoire et monarchie, langue et écriture, bouddhisme, cuisine, codes sociaux, vie pratique du voyageur, économie et politique.",
     terms:    () => terms_thailande,
     cats:     () => CATS_THAI,
     parent:   "connaissance",
@@ -1011,7 +1080,7 @@ const LEXIQUES = {
   sport: {
     title:    "Sport & Entraînement",
     eyebrow:  "Sous-lexique · Connaissance",
-    subtitle: "Bouger et progresser sans se blesser : physiologie de l'effort, méthodes d'entraînement, blessures, nutrition et récupération, disciplines, compétition et mental.",
+    subtitle: "Bouger et progresser sans se blesser : physiologie de l'effort, méthodes d'entraînement, anatomie et blessures, nutrition et récupération, disciplines, compétition et mental.",
     terms:    () => terms_sport,
     cats:     () => CATS_SPORT,
     parent:   "connaissance",
@@ -1019,15 +1088,39 @@ const LEXIQUES = {
   cuisine: {
     title:    "Cuisine & Gastronomie",
     eyebrow:  "Sous-lexique · Connaissance",
-    subtitle: "Le vocabulaire de la table : gestes et cuissons, fonds et sauces, produits et labels, goût, pâtisserie, vins et boissons, nutrition, restauration, histoire et figures.",
+    subtitle: "Le vocabulaire de la table : bases, gestes et cuissons, fonds et sauces, produits et labels, goût, pâtisserie, vins et boissons, nutrition, restauration et histoire.",
     terms:    () => terms_cuisine,
     cats:     () => CATS_CUISINE,
+    parent:   "connaissance",
+  },
+  philosophie: {
+    title:    "Philosophie",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Le socle que les autres lexiques supposent : branches et méthode, connaissance et vérité, être et existence, morale, politique, et les figures qui ont posé les questions.",
+    terms:    () => terms_philo,
+    cats:     () => CATS_PHILO,
+    parent:   "connaissance",
+  },
+  christianisme: {
+    title:    "Christianisme",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Vocabulaire du christianisme : fondements, Écritures, théologie, confessions, sacrements, liturgie, fêtes, institutions, figures, spiritualité et histoire.",
+    terms:    () => terms_christianisme,
+    cats:     () => CATS_CHRISTIANISME,
+    parent:   "connaissance",
+  },
+  islam: {
+    title:    "Islam",
+    eyebrow:  "Sous-lexique · Connaissance",
+    subtitle: "Vocabulaire de l'islam : fondements, Coran et Sunna, piliers, théologie, droit, courants, pratique, fêtes, figures, institutions, civilisation et histoire.",
+    terms:    () => terms_islam,
+    cats:     () => CATS_ISLAM,
     parent:   "connaissance",
   },
   shs: {
     title:    "Sciences humaines & sociales",
     eyebrow:  "Sous-lexique · Connaissance",
-    subtitle: "Les disciplines étudiant l'être humain, les sociétés, les comportements, les cultures et les institutions : sociologie, psychologie, histoire, économie, anthropologie, philosophie sociale.",
+    subtitle: "Les disciplines étudiant l'être humain, les sociétés, les comportements, les cultures et les institutions : concepts transversaux, sociologie, psychologie, histoire, économie, anthropologie, géographie, linguistique et science politique.",
     terms:    () => terms_shs,
     cats:     () => CATS_SHS,
     parent:   "connaissance",
@@ -1035,7 +1128,7 @@ const LEXIQUES = {
   economie: {
     title:    "Économie & Finance",
     eyebrow:  "Sous-lexique · Sciences humaines & sociales",
-    subtitle: "Comprendre l'argent, le sien et celui du pays : marchés, monnaie, emploi, État, entreprise, finances personnelles, Bourse, commerce international, écoles de pensée.",
+    subtitle: "Comprendre l'argent, le sien et celui du pays : fondements, monnaie, emploi, État et politique économique, entreprise, finances personnelles, Bourse, commerce international, écoles de pensée.",
     terms:    () => terms_economie,
     cats:     () => CATS_ECO,
     parent:   "shs",
@@ -1048,26 +1141,10 @@ const LEXIQUES = {
     cats:     () => CATS_PSYCHO,
     parent:   "shs",
   },
-  christianisme: {
-    title:    "Christianisme",
-    eyebrow:  "Sous-lexique · Sciences humaines & sociales",
-    subtitle: "Vocabulaire du christianisme : fondements, Écritures, théologie, confessions, sacrements, liturgie, fêtes, institutions, figures et histoire.",
-    terms:    () => terms_christianisme,
-    cats:     () => CATS_CHRISTIANISME,
-    parent:   "shs",
-  },
-  islam: {
-    title:    "Islam",
-    eyebrow:  "Sous-lexique · Sciences humaines & sociales",
-    subtitle: "Vocabulaire de l'islam : fondements, Coran et Sunna, piliers, théologie, droit, courants, pratique, fêtes, figures, institutions, civilisation et histoire.",
-    terms:    () => terms_islam,
-    cats:     () => CATS_ISLAM,
-    parent:   "shs",
-  },
   sciences: {
     title:    "Sciences & Technologies",
     eyebrow:  "Sous-lexique · Connaissance",
-    subtitle: "Les grands concepts fondateurs des sciences et des technologies : méthode scientifique, disciplines, mesure, énergie, matière, vie, espace et innovation.",
+    subtitle: "Comment le monde marche et comment on le fabrique : méthode, mathématiques, physique, chimie, biologie, énergie, espace, ingénierie, innovation et mesure.",
     terms:    () => terms_sciences,
     cats:     () => CATS_SCIENCES,
     parent:   "connaissance",
@@ -1091,7 +1168,7 @@ const LEXIQUES = {
   numerique: {
     title:    "Numérique",
     eyebrow:  "Sous-lexique · Sciences & Technologies",
-    subtitle: "Les grands concepts du monde numérique : internet, données, IA, design, droit, télécommunications, économie et société.",
+    subtitle: "Ce que le numérique change, au-delà des machines : fondamentaux, internet et web, données, design, télécommunications, droit et éthique, économie, sécurité et société.",
     terms:    () => terms_numerique,
     cats:     () => CATS_NUMERIQUE,
     parent:   "sciences",
@@ -1099,7 +1176,7 @@ const LEXIQUES = {
   design: {
     title:    "Design & UX",
     eyebrow:  "Sous-lexique · Numérique",
-    subtitle: "Concevoir pour les gens : recherche utilisateur, interaction, design visuel, accessibilité, design system et méthodes.",
+    subtitle: "Concevoir pour les gens : fondements, recherche utilisateur, interaction, design visuel, accessibilité, design system et méthodes.",
     terms:    () => terms_design,
     cats:     () => CATS_DESIGN,
     parent:   "numerique",
@@ -1107,15 +1184,31 @@ const LEXIQUES = {
   crypto: {
     title:    "Cryptos",
     eyebrow:  "Sous-lexique · Numérique",
-    subtitle: "Bitcoin, blockchain et ce qui va avec : fonctionnement, portefeuilles, marchés, DeFi, risques, régulation et histoire. Descriptif, sans conseil.",
+    subtitle: "Bitcoin, blockchain et ce qui va avec : fondements, chaîne de blocs, portefeuilles, marchés, DeFi, risques, régulation et histoire. Descriptif, sans conseil.",
     terms:    () => terms_crypto,
     cats:     () => CATS_CRYPTO,
+    parent:   "numerique",
+  },
+  bureautique: {
+    title:    "Bureautique & Productivité",
+    eyebrow:  "Sous-lexique · Numérique",
+    subtitle: "Produire et s'organiser au bureau : poste de travail, traitement de texte, tableur, diaporama, fichiers et impression, messagerie et agenda, collaboration, notes et tâches, méthodes d'organisation.",
+    terms:    () => terms_bureautique,
+    cats:     () => CATS_BUREAU,
+    parent:   "numerique",
+  },
+  jeuvideo: {
+    title:    "Jeu vidéo",
+    eyebrow:  "Sous-lexique · Numérique",
+    subtitle: "Comprendre le média et son industrie : bases et histoire, game design, technique et moteurs, genres, jeu en ligne, économie du secteur, culture et société.",
+    terms:    () => terms_jeuvideo,
+    cats:     () => CATS_JV,
     parent:   "numerique",
   },
   informatique: {
     title:    "Informatique",
     eyebrow:  "Sous-lexique · Numérique",
-    subtitle: "Les termes essentiels du développement, des réseaux, de la sécurité et des systèmes.",
+    subtitle: "Comment marche une machine et ce qui tourne dessus : réseau, système, sécurité, développement, matériel, données et IA.",
     terms:    () => terms_info,
     cats:     () => CATS_INFO,
     parent:   "numerique",
@@ -1123,23 +1216,15 @@ const LEXIQUES = {
   electronique: {
     title:    "Matériel & Électronique",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Ce qu'il y a sous le capot : électricité, composants, circuits, signaux, processeurs, mémoires, anatomie d'un PC, connectique, cartes de bricolage et objets connectés, périphériques.",
+    subtitle: "Ce qu'il y a sous le capot : électricité, composants, circuits, signaux, processeurs, mémoires, anatomie d'un ordinateur, connectique, cartes de bricolage et objets connectés, périphériques.",
     terms:    () => terms_electronique,
     cats:     () => CATS_ELECTRO,
-    parent:   "informatique",
-  },
-  jeuvideo: {
-    title:    "Jeu vidéo",
-    eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Comprendre le média et son industrie : bases et histoire, game design, technique et moteurs, genres, jeu en ligne, économie du secteur, culture et société.",
-    terms:    () => terms_jeuvideo,
-    cats:     () => CATS_JV,
     parent:   "informatique",
   },
   api: {
     title:    "API",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Endpoints, méthodes HTTP, authentification, formats et architecture des interfaces programmatiques.",
+    subtitle: "Ce qu'un programme demande à un autre : concepts, méthodes HTTP, authentification, formats, architecture, erreurs et performance.",
     terms:    () => terms_api,
     cats:     () => CATS_API,
     parent:   "informatique",
@@ -1147,7 +1232,7 @@ const LEXIQUES = {
   ia: {
     title:    "IA",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Les termes de l'intelligence artificielle : fondements, modèles, entraînement, IA générative, agents, alignement et écosystème du calcul.",
+    subtitle: "Les termes de l'intelligence artificielle : fondements, modèles, entraînement, IA générative, langage naturel, vision, agents, alignement et écosystème du calcul.",
     terms:    () => terms_ia,
     cats:     () => CATS_IA,
     parent:   "informatique",
@@ -1155,7 +1240,7 @@ const LEXIQUES = {
   automatisation: {
     title:    "Automatisation & No-code",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Faire tourner les tâches sans y toucher : workflows, déclencheurs, connexions, outils (n8n, Make, Zapier), fiabilité et cas d'usage.",
+    subtitle: "Faire tourner les tâches sans y toucher : fondements, briques d'un workflow, données, outils (n8n, Make, Zapier), fiabilité, IA et cas d'usage.",
     terms:    () => terms_automatisation,
     cats:     () => CATS_AUTO,
     parent:   "informatique",
@@ -1163,7 +1248,7 @@ const LEXIQUES = {
   bdd: {
     title:    "Données & Bases de données",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Ranger et retrouver l'information : modèle relationnel, SQL, moteurs, NoSQL, modélisation, exploitation, analyse et gouvernance.",
+    subtitle: "Ranger et retrouver l'information : fondements, SQL, moteurs, NoSQL, modélisation, exploitation, analyse et gouvernance.",
     terms:    () => terms_bdd,
     cats:     () => CATS_BDD,
     parent:   "informatique",
@@ -1171,7 +1256,7 @@ const LEXIQUES = {
   developpement: {
     title:    "Développement",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Écrire du logiciel : langages, notions de base, qualité et tests, outils, architecture, méthodes de travail, et ce que l'IA y change.",
+    subtitle: "Écrire du logiciel : fondements, langages, notions de base, qualité et tests, outils, architecture, méthodes de travail, et ce que l'IA y change.",
     terms:    () => terms_developpement,
     cats:     () => CATS_DEV,
     parent:   "informatique",
@@ -1179,7 +1264,7 @@ const LEXIQUES = {
   securite: {
     title:    "Sécurité",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Protéger systèmes et données : menaces, cryptographie, identité, attaques, défenses et bonnes pratiques.",
+    subtitle: "Protéger systèmes et données : fondements, cryptographie, identité et accès, attaques, défense, bonnes pratiques et droit.",
     terms:    () => terms_securite,
     cats:     () => CATS_SECURITE,
     parent:   "informatique",
@@ -1187,7 +1272,7 @@ const LEXIQUES = {
   serveur: {
     title:    "Serveur",
     eyebrow:  "Sous-lexique · Informatique",
-    subtitle: "Architecture, hébergement, virtualisation, protocoles, administration et stockage des serveurs.",
+    subtitle: "Les machines qui servent les autres : types, architecture, hébergement, virtualisation, protocoles, sécurité, administration, performance et stockage.",
     terms:    () => terms_serveur,
     cats:     () => CATS_SERVEUR,
     parent:   "informatique",
@@ -1195,7 +1280,7 @@ const LEXIQUES = {
   web: {
     title:    "Web",
     eyebrow:  "Sous-lexique · Internet",
-    subtitle: "Les termes essentiels du World Wide Web : langages, frameworks, architecture, performance, accessibilité, SEO et outils du développeur web.",
+    subtitle: "Ce qui fait tourner un site : fondamentaux, langages, frameworks, architecture, performance, accessibilité, sécurité, SEO et outils.",
     terms:    () => terms_web,
     cats:     () => CATS_WEB,
     parent:   "internet",
@@ -1203,7 +1288,7 @@ const LEXIQUES = {
   reseaux: {
     title:    "Réseaux",
     eyebrow:  "Sous-lexique · Internet",
-    subtitle: "Comment les machines se parlent : couches, adresses, protocoles, routage, matériel, sans fil et diagnostic.",
+    subtitle: "Comment les machines se parlent, couche par couche : fondements, modèle et couches, adressage, protocoles, routage, matériel, sans fil, performance et sécurité.",
     terms:    () => terms_reseaux,
     cats:     () => CATS_RESEAUX,
     parent:   "internet",
@@ -1211,7 +1296,7 @@ const LEXIQUES = {
   internet: {
     title:    "Internet",
     eyebrow:  "Sous-lexique · Numérique",
-    subtitle: "Infrastructure, protocoles, web, services, identité en ligne et gouvernance du réseau mondial.",
+    subtitle: "Le réseau mondial vu du dessus : infrastructure, protocoles, web, services, identité en ligne, performance et gouvernance.",
     terms:    () => terms_internet,
     cats:     () => CATS_INTERNET,
     parent:   "numerique",
@@ -1224,6 +1309,7 @@ const LEXIQUES = {
 const LEX_ICONS = {
   connaissance: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
   habitat:      '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  auto:         '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12.4V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
   francais:     '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
   japon:        '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
   thailande:    '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10"/>',
@@ -1231,6 +1317,7 @@ const LEX_ICONS = {
   cuisine:      '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
   shs:          '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
   economie:     '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/>',
+  philosophie:  '<path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2 14a4 4 0 0 0 6 0z"/><path d="m19 7 3 7a4 4 0 0 1-6 0z"/><path d="M8 21h8"/>',
   psychologie:  '<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>',
   christianisme: '<path d="M12 2v20"/><path d="M6 8h12"/>',
   islam:        '<path d="M15.5 3.5A9 9 0 1 0 20.5 15a7 7 0 1 1-5-11.5z"/><path d="m18.5 3.5.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L15.5 5.7l2.1-.3z"/>',
@@ -1242,6 +1329,7 @@ const LEX_ICONS = {
   numerique:    '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
   jeuvideo:     '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.152A4 4 0 0 0 17.32 5z"/>',
   electronique: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M11 9h4a2 2 0 0 0 2-2V3"/><circle cx="9" cy="9" r="2"/><path d="M7 21v-4a2 2 0 0 1 2-2h4"/><circle cx="15" cy="15" r="2"/>',
+  bureautique:  '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/><path d="M2 13h20"/>',
   informatique: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>',
   api:          '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
   serveur:      '<rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/>',
@@ -1274,13 +1362,25 @@ function resolveTerm(t, lexId) {
 }
 
 // Nom du terme tel qu'il apparaît dans chaque lexique où il est repris
-function conceptOccurrences(homeId, homeName) {
-  const out = [];
+// Table des occurrences, construite une fois : la parcourir à chaque appel
+// revenait à relire les 2 792 fiches par résultat de recherche.
+let OCC = null;
+
+function occMap() {
+  if (OCC) return OCC;
+  OCC = new Map();
   for (const id of Object.keys(LEXIQUES))
-    for (const t of LEXIQUES[id].terms())
-      if ((t.ref === homeId && slugify(t.refName || t.name) === slugify(homeName)) || (!t.ref && id === homeId && slugify(t.name) === slugify(homeName)))
-        out.push({ lexId: id, name: t.name });
-  return out;
+    for (const t of LEXIQUES[id].terms()) {
+      const key = (t.ref || id) + "/" + slugify(t.refName || t.name);
+      const list = OCC.get(key);
+      if (list) list.push({ lexId: id, name: t.name });
+      else OCC.set(key, [{ lexId: id, name: t.name }]);
+    }
+  return OCC;
+}
+
+function conceptOccurrences(homeId, homeName) {
+  return occMap().get(homeId + "/" + slugify(homeName)) || [];
 }
 
 function refPill(r, clickable) {
@@ -1300,6 +1400,7 @@ let sortAZ    = true;
 
 // ── ROUTER ────────────────────────────────────────────────────────────────────
 
+const GLOBAL_MAX  = 200; // cartes affichées au maximum par la recherche globale
 const INDEX_ROUTE = "lexiques";
 const GRAPH_ROUTE = "arbre";
 const REVIEW_ROUTE = "revision"; // #revision (tous les lexiques) ou #revision/<lexique>
@@ -1804,24 +1905,22 @@ function renderGlobal() {
   page.classList.add("searching");
 
   const seen = new Map(); // clé concept → carte
-  for (const lexId of Object.keys(LEXIQUES)) {
-    for (const raw of LEXIQUES[lexId].terms()) {
-      const t = resolveTerm(raw, lexId);
-      if (!matches(t, q)) continue;
-      const key = t.homeId + "/" + slugify(t.homeName);
-      if (seen.has(key)) continue;
-      // la carte affichée est celle du lexique de référence ; les autres lexiques sont listés dessous
-      const home = t.ref ? resolveTerm(LEXIQUES[t.homeId].terms().find(x => slugify(x.name) === slugify(t.homeName)), t.homeId) : t;
-      const also = conceptOccurrences(t.homeId, t.homeName).filter(o => o.lexId !== t.homeId);
-      seen.set(key, { t: home, lexId: t.homeId, also });
-    }
+  for (const row of searchIndex(buildIndex(), q)) {
+    if (seen.has(row.key)) continue;
+    // la carte affichée est celle du lexique de référence ; les autres lexiques sont listés dessous
+    const also = conceptOccurrences(row.t.homeId, row.t.homeName).filter(o => o.lexId !== row.t.homeId);
+    seen.set(row.key, { t: row.home, lexId: row.t.homeId, also });
   }
   const hits = [...seen.values()];
   hits.sort((a, b) => a.t.name.localeCompare(b.t.name, "fr"));
 
   const nbLex = new Set(hits.map(h => h.lexId)).size;
+  // afficher des milliers de cartes coûte plus cher que de les trouver : on s'arrête
+  // à GLOBAL_MAX et on le dit, à charge de préciser la recherche
+  const shown = hits.slice(0, GLOBAL_MAX);
   document.getElementById("gcount").textContent =
-    `${hits.length} terme${hits.length !== 1 ? "s" : ""} dans ${nbLex} lexique${nbLex !== 1 ? "s" : ""}`;
+    `${hits.length} terme${hits.length !== 1 ? "s" : ""} dans ${nbLex} lexique${nbLex !== 1 ? "s" : ""}`
+    + (hits.length > GLOBAL_MAX ? ` · les ${GLOBAL_MAX} premiers sont affichés` : "");
 
   const grid = document.getElementById("gresults");
   if (!hits.length) {
@@ -1829,10 +1928,41 @@ function renderGlobal() {
     return;
   }
 
-  grid.innerHTML = hits.map((h, i) => globalCard(h, i)).join("");
+  grid.innerHTML = shown.map((h, i) => globalCard(h, i)).join("")
+    + (hits.length > GLOBAL_MAX
+      ? `<div class="more-hint">${hits.length - GLOBAL_MAX} autres termes correspondent — précisez la recherche pour les voir.</div>`
+      : "");
 }
 
 // Carte d'un terme hors de son lexique (résultat global, suggestion)
+// Verso d'une carte : l'illustration, montrée sur demande par le bouton
+const ICON_IMAGE = '<svg class="lx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+
+function flipFace(t, lexId) {
+  if (!t.image) return "";
+  return `<figure class="face-back">
+      <span class="lex-pill">${lexIcon(lexId)}${esc(LEXIQUES[lexId].title)}</span>
+      <img src="${esc(t.image)}" alt="${esc(t.name)}" loading="lazy" referrerpolicy="no-referrer">
+      ${t.credit ? `<figcaption class="img-credit">${esc(t.credit)}</figcaption>` : ""}
+    </figure>`;
+}
+
+function flipButton(t) {
+  return t.image
+    ? `<button class="flip-btn" title="Voir l'image" aria-label="Voir l'image" onclick="flipCard(event)">${ICON_IMAGE}</button>`
+    : "";
+}
+
+// L'échange des faces a lieu à mi-rotation, quand la fiche est vue de chant
+function flipCard(ev) {
+  ev.stopPropagation();
+  const box = document.getElementById("modal-box");
+  const versLImage = !box.classList.contains("flipped");
+  box.classList.toggle("flipped", versLImage);
+  clearTimeout(box.flipTimer);
+  box.flipTimer = setTimeout(() => box.classList.toggle("showing-back", versLImage), 220);
+}
+
 function globalCard({ t, lexId, also = [] }, i) {
   const col   = CAT_COLORS[t.cat] || "#888";
   const bg    = col + "18";
@@ -1910,13 +2040,44 @@ function fold(str) {
     .replace(/[’‘`´]/g, "'").replace(/\s+/g, " ");
 }
 
+// ── INDEX DE RECHERCHE ────────────────────────────────────────────────────────
+// Chercher en parcourant les fiches revenait à refaire, à chaque frappe, le même
+// fold() sur 16 000 champs et à re-résoudre les renvois : 145 ms par touche.
+// On prépare donc une fois pour toutes une chaîne normalisée par fiche. La
+// construction (~170 ms) n'a lieu qu'à la première recherche, pas au chargement.
+
+let INDEX = null;          // [{ t, lexId, hay, key, home }]
+const HOME_CARD = {};      // clé concept → fiche qui porte la définition
+const INDEX_BY_LEX = {};   // lexId → sous-ensemble, pour la recherche d'un lexique
+
+function buildIndex() {
+  if (INDEX) return INDEX;
+  INDEX = [];
+  for (const lexId of Object.keys(LEXIQUES)) {
+    const rows = [];
+    for (const raw of LEXIQUES[lexId].terms()) {
+      const t = resolveTerm(raw, lexId);
+      const hay = fold([t.name, t.refName, t.def, t.ex, t.etymo, t.en].filter(Boolean).join(" \u0001 "));
+      // clé du concept et fiche de référence calculées ici plutôt qu'à chaque recherche
+      const key = t.homeId + "/" + slugify(t.homeName);
+      const row = { t, lexId, hay, key };
+      INDEX.push(row); rows.push(row);
+    }
+    INDEX_BY_LEX[lexId] = rows;
+  }
+  // fiche de référence de chaque concept, pour ne pas la rechercher à chaque fois
+  for (const row of INDEX) if (!row.t.ref) HOME_CARD[row.key] = row.t;
+  for (const row of INDEX) row.home = HOME_CARD[row.key] || row.t;
+  return INDEX;
+}
+
+// Les données ne changent jamais en cours de session ; l'index non plus.
+function searchIndex(rows, q) {
+  return q ? rows.filter(r => r.hay.includes(q)) : rows;
+}
+
 function matches(t, q) {
-  return fold(t.name).includes(q)
-    || fold(t.refName).includes(q)
-    || fold(t.def).includes(q)
-    || fold(t.ex).includes(q)
-    || fold(t.etymo).includes(q)
-    || fold(t.en).includes(q);
+  return fold([t.name, t.refName, t.def, t.ex, t.etymo, t.en].filter(Boolean).join(" \u0001 ")).includes(q);
 }
 
 function slugify(name) {
@@ -1977,13 +2138,12 @@ function scrollToTerm(event, slug) {
 function renderGrid() {
   const q      = fold(document.getElementById("search").value).trim();
   if (lexState(currentId).q !== document.getElementById("search").value) setLexState(currentId, { q: document.getElementById("search").value });
-  const terms  = LEXIQUES[currentId].terms().map(t => resolveTerm(t, currentId));
+  // sans recherche on évite de construire l'index : le filtre par catégorie suffit
+  const rows = q
+    ? (buildIndex(), searchIndex(INDEX_BY_LEX[currentId], q))
+    : LEXIQUES[currentId].terms().map(t => ({ t: resolveTerm(t, currentId) }));
 
-  let filtered = terms.filter(t => {
-    const mc = activeCat === "all" || t.cat === activeCat;
-    const mq = !q || matches(t, q);
-    return mc && mq;
-  });
+  let filtered = rows.map(r => r.t).filter(t => activeCat === "all" || t.cat === activeCat);
 
   filtered.sort((a, b) => sortAZ
     ? a.name.localeCompare(b.name, "fr")
@@ -2044,8 +2204,15 @@ function openCard(lexId, slug) {
   const others = conceptOccurrences(t.homeId, t.homeName).filter(o => o.lexId !== lexId && o.lexId !== t.homeId);
   others.forEach(o => actions.push(`<button class="modal-btn" onclick="closeModal(); openTerm('${o.lexId}','${slugify(o.name)}')">Aussi dans ${esc(LEXIQUES[o.lexId].title)}</button>`));
 
-  document.getElementById("modal-box").innerHTML = `
+  const box = document.getElementById("modal-box");
+  box.classList.toggle("has-image", !!t.image);
+  box.classList.remove("flipped", "showing-back");
+  clearTimeout(box.flipTimer);
+  box.innerHTML = `
     <button class="modal-close" onclick="closeModal()" aria-label="Fermer">×</button>
+    ${flipButton(t)}
+    ${flipFace(t, lexId)}
+    <div class="face-front">
     ${lexPill}
     <div class="modal-title">${esc(t.name)}</div>
     <span class="badge" style="color:${col};background:${bg};border-color:${col}44">${esc(CAT_LABELS[t.cat])}</span>
@@ -2054,7 +2221,8 @@ function openCard(lexId, slug) {
     ${t.etymo ? `<div class="term-etymo">${esc(t.etymo)}</div>` : ""}
     ${t.ex    ? `<div class="term-ex">${esc(t.ex)}</div>` : ""}
     ${t.en && t.en !== t.name ? `<div class="term-en">${esc(t.en)}</div>` : ""}
-    ${actions.length ? `<div class="modal-actions">${actions.join("")}</div>` : ""}`;
+    ${actions.length ? `<div class="modal-actions">${actions.join("")}</div>` : ""}
+    </div>`;
 
   document.getElementById("modal").classList.add("open");
   document.body.classList.add("modal-open");
