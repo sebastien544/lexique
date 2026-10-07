@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Chercher dans Lexique",
+  "version": "1.0",
+  "description": "Clic droit sur un mot sélectionné : ouvre sa fiche dans Lexique, ou la recherche s'il n'en a pas.",
+  "permissions": ["contextMenus"],
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icone-16.png", "48": "icone-48.png", "128": "icone-128.png" }
+}
