@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --fond: #fbf8f2; --texte: #1c1917; --doux: #78716c; --trait: #e7e1d6; --accent: #0f766e; }
+  @media (prefers-color-scheme: dark) { :root { --fond: #1f1d1a; --texte: #ece7dd; --doux: #a8a29e; --trait: #3a3631; --accent: #7dd3c0; } }
+  body { margin: 0; width: 360px; background: var(--fond); color: var(--texte); font: 13px/1.45 system-ui, sans-serif; }
+  header { padding: 12px 14px 8px; border-bottom: 1px solid var(--trait); }
+  h1 { font: 600 16px Georgia, serif; margin: 0; }
+  .sous { color: var(--doux); font-size: 12px; }
+  ul { list-style: none; margin: 0; padding: 4px 0; max-height: 360px; overflow-y: auto; }
+  li { padding: 7px 14px; border-bottom: 1px solid var(--trait); position: relative; }
+  .terme { font-weight: 600; padding-right: 22px; }
+  .src { color: var(--doux); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ctx { font-size: 12px; font-style: italic; color: var(--doux); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .x { position: absolute; top: 5px; right: 8px; border: 0; background: none; color: var(--doux); font-size: 16px; cursor: pointer; }
+  .vide { padding: 18px 14px; color: var(--doux); }
+  footer { display: flex; gap: 8px; padding: 10px 14px; }
+  button.b { font: 600 13px system-ui, sans-serif; padding: 6px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--fond); }
+  button.b.second { background: transparent; color: var(--accent); }
+  button.b:disabled { opacity: .4; cursor: default; }
+</style>
+</head>
+<body>
+<header><h1>À rédiger</h1><div class="sous" id="sous">…</div></header>
+<ul id="liste"></ul>
+<footer>
+  <button class="b" id="copier">Copier pour Claude</button>
+  <button class="b second" id="vider">Tout vider</button>
+</footer>
+<script src="popup.js"></script>
+</body>
+</html>

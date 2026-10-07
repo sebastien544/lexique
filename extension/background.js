@@ -2,6 +2,8 @@
 // La définition s'affiche dans une info-bulle sur la page ; si la page refuse
 // l'injection (pages chrome://, PDF…) ou si l'index est injoignable, la fiche
 // s'ouvre dans un nouvel onglet comme avant.
+// Un mot sans fiche peut être ajouté à la liste « à rédiger » (stockage de
+// l'extension, consultée et copiée depuis le bouton de la barre d'outils).
 
 const LEXIQUE_URL = "https://sebastien544.github.io/lexique/";
 const INDEX_URL = LEXIQUE_URL + "lexique-index.json";
@@ -15,7 +17,9 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Chercher « %s » dans Lexique",
     contexts: ["selection"],
   });
+  majBadge();
 });
+chrome.runtime.onStartup.addListener(majBadge);
 
 // mêmes règles que fold() dans index.html : casse, accents et apostrophes ignorés
 const fold = s => String(s || "").toLowerCase()
@@ -35,22 +39,80 @@ async function chargerIndex() {
   return fiches;
 }
 
+// « rendements obligataires » → « rendement obligataire » (chaque mot, pas seulement le dernier)
+const singulier = s => s.split(" ").map(m => m.length > 3 ? m.replace(/[sx]$/, "") : m).join(" ");
+// « Brut (pétrole) » se trouve aussi en cherchant « brut »
+const sansParenthese = s => s.replace(/\s*\([^)]*\)$/, "");
+
 function chercher(fiches, q) {
   const f = fold(q);
   const exacte = fiches.find(x => x.fn === f) || fiches.find(x => x.fe && x.fe === f);
   if (exacte) return { fiche: exacte };
-  const singulier = f.replace(/[sx]$/, "");
-  if (singulier !== f) {
-    const s = fiches.find(x => x.fn === singulier);
-    if (s) return { fiche: s };
-  }
-  const proches = f.length < 3 ? [] : fiches.filter(x => x.fn.includes(singulier)).slice(0, MAX_PROCHES);
+  const sg = singulier(f);
+  const approchee = fiches.find(x => singulier(x.fn) === sg)
+    || fiches.find(x => sansParenthese(x.fn) !== x.fn && singulier(sansParenthese(x.fn)) === sg);
+  if (approchee) return { fiche: approchee };
+  const proches = f.length < 3 ? [] : fiches.filter(x => x.fn.includes(sg)).slice(0, MAX_PROCHES);
   return { proches };
 }
 
 const urlFiche = x => LEXIQUE_URL + "#" + x.l + "/" + x.s;
 const urlRecherche = q => { const u = new URL(LEXIQUE_URL); u.searchParams.set("q", q); return u.href; };
 const sansCles = ({ fn, fe, ...x }) => ({ ...x, url: urlFiche(x) });
+
+// ── LISTE « À RÉDIGER » ──────────────────────────────────────────────────────
+// [{ terme, sources: [{ url, titre, contexte }], date }] dans chrome.storage.local
+
+async function lireListe() {
+  const { aRediger = [] } = await chrome.storage.local.get("aRediger");
+  return aRediger;
+}
+
+async function ecrireListe(liste) {
+  await chrome.storage.local.set({ aRediger: liste });
+  await majBadge(liste);
+}
+
+async function majBadge(liste) {
+  const n = (liste || await lireListe()).length;
+  await chrome.action.setBadgeBackgroundColor({ color: "#0f766e" });
+  await chrome.action.setBadgeText({ text: n ? String(n) : "" });
+}
+
+async function ajouter({ terme, url, titre, contexte }) {
+  const liste = await lireListe();
+  const source = { url, titre, contexte };
+  const deja = liste.find(x => fold(x.terme) === fold(terme));
+  if (deja) { if (!deja.sources.some(s => s.url === url)) deja.sources.push(source); }
+  else liste.push({ terme, sources: [source], date: new Date().toISOString().slice(0, 10) });
+  await ecrireListe(liste);
+  return liste.length;
+}
+
+// Retire de la liste les termes qui ont désormais une fiche
+async function listeAJour() {
+  let liste = await lireListe();
+  try {
+    const fiches = await chargerIndex();
+    const avant = liste.length;
+    liste = liste.filter(x => !chercher(fiches, x.terme).fiche);
+    if (liste.length !== avant) await ecrireListe(liste);
+  } catch {} // index injoignable : on garde la liste telle quelle
+  return liste;
+}
+
+chrome.runtime.onMessage.addListener((msg, _exp, repondre) => {
+  const actions = {
+    ajouter: () => ajouter(msg).then(total => ({ total })),
+    liste: () => listeAJour().then(liste => ({ liste })),
+    retirer: async () => { const l = (await lireListe()).filter(x => x.terme !== msg.terme); await ecrireListe(l); return { liste: l }; },
+    vider: async () => { await ecrireListe([]); return { liste: [] }; },
+  };
+  const action = actions[msg.type];
+  if (!action) return false;
+  action().then(repondre, e => repondre({ erreur: e.message }));
+  return true; // réponse asynchrone
+});
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== "chercher-lexique") return;
@@ -80,6 +142,18 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 function afficherBulle(r) {
   document.getElementById("lexique-bulle")?.remove();
 
+  // la phrase autour de la sélection, pour savoir dans quel sens le mot est employé
+  let contexte = "";
+  const selCtx = window.getSelection();
+  if (selCtx && selCtx.rangeCount) {
+    let n = selCtx.getRangeAt(0).commonAncestorContainer;
+    if (n.nodeType !== 1) n = n.parentElement;
+    const bloc = n && (n.closest("p, li, td, dd, blockquote, h1, h2, h3, h4, figcaption") || n);
+    const texte = (bloc?.innerText || "").replace(/\s+/g, " ").trim();
+    const i = texte.toLowerCase().indexOf(r.q.toLowerCase());
+    contexte = i < 0 ? texte.slice(0, 300) : texte.slice(Math.max(0, i - 150), i + r.q.length + 150);
+  }
+
   const hote = document.createElement("div");
   hote.id = "lexique-bulle";
   const ombre = hote.attachShadow({ mode: "open" });
@@ -105,6 +179,10 @@ function afficherBulle(r) {
     a { color: #0f766e; text-decoration: none; cursor: pointer; }
     a:hover { text-decoration: underline; }
     .ouvrir { font-weight: 600; font-size: 13px; }
+    .ajouter { font: 600 13px system-ui, sans-serif; margin: 0 0 8px; padding: 5px 10px; border-radius: 6px;
+      border: 1px solid #0f766e; background: transparent; color: #0f766e; cursor: pointer; }
+    .ajouter:disabled { cursor: default; opacity: .85; }
+    @media (prefers-color-scheme: dark) { .ajouter { border-color: #7dd3c0; color: #7dd3c0; } }
     .fermer { position: absolute; top: 6px; right: 8px; border: 0; background: none; font-size: 18px;
       line-height: 1; color: #78716c; cursor: pointer; padding: 4px; }
   </style><div class="b" role="dialog" aria-label="Lexique"><button class="fermer" aria-label="Fermer">×</button><div class="contenu"></div></div>`;
@@ -136,7 +214,14 @@ function afficherBulle(r) {
       }
       enfants.push(ul);
     }
-    enfants.push(lien("Chercher dans Lexique →", r.recherche, "ouvrir"));
+    const ajout = el("button", "ajouter", "+ Ajouter à la liste à rédiger");
+    ajout.addEventListener("click", () => {
+      ajout.disabled = true;
+      chrome.runtime.sendMessage({ type: "ajouter", terme: r.q, url: location.href, titre: document.title, contexte })
+        .then(rep => { ajout.textContent = rep.erreur ? "Échec : " + rep.erreur : `Ajouté ✓ (${rep.total} à rédiger)`; })
+        .catch(e => { ajout.textContent = "Échec : " + e.message; });
+    });
+    enfants.push(ajout, el("br"), lien("Chercher dans Lexique →", r.recherche, "ouvrir"));
     contenu.replaceChildren(...enfants);
   }
 
